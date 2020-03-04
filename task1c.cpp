@@ -16,30 +16,30 @@ with those from Cramer's theorem and the Central Limit Theorem as n increases.*/
 
 using namespace std;
 
-double Andersen_sidenius_Basu(int k, int n) {
+double Andersen_sidenius_Basu(int k, int j, int n) {
 	//double P_S_j_K = 0, P_S_j_k;
-	if ((k > n) | (n < 0) | (k < 0)) {
+	if ((k > n) | (j < 0) | (k < 0)) {
 		cout << "0 case : n=" << n << " and k = " << k << endl;
 		return 0;
 	}
 	else {
-		if ((n == 0) & (k == 0)) {
+		if ((j == 0) & (k == 0)) {
 			//cout << "1 case" << endl;
 			return 1;
 		}
 		else {
-			if (k == n) {
+			if (k == j) {
 				double Pk = 1;
-				for (unsigned int i = 0; i <= n; i++) {
-					double P_L = 1 - ((double)n / ((double)n + 1));
+				for (unsigned int i = 0; i <= j; i++) {
+					double P_L = 1 - ((double)i / ((double)n + 1));
 					Pk *= P_L;
 				}
 				return Pk;
 			}
 			else {
-				double P_L = 1 - ((double)n / ((double)n + 1));
+				double P_L = 1 - ((double)j / ((double)n + 1));
 				cout << P_L << "k = " << k << " ; n =" << n << endl;
-				return Andersen_sidenius_Basu(k, n - 1) * (1 - P_L) + Andersen_sidenius_Basu(k - 1, n - 1) * (P_L);
+				return Andersen_sidenius_Basu(k, j - 1,n) * (1 - P_L) + Andersen_sidenius_Basu(k - 1, j - 1,n) * (P_L);
 			}
 		}
 	}
@@ -84,36 +84,16 @@ double Hull_White(int n, int k) {
 }
 
 
-int generate_Sn(int n) {
-	// With C++ tool
-	default_random_engine generator;
-	uniform_real_distribution<double> distribution(0.0, 1.0);
 
-	double U_i;
-	double p_i;
-	double L_i;
-	double S_n = 0;
 
-	for (unsigned int i = 0; i < n; i++) {
-		U_i = distribution(generator);
-		p_i = 1 - ((double)i / ((double)n + 1));
-		//cout << "p : " << p_i << " ; U : " << U_i << endl;
-		if (p_i > U_i) {
-			L_i = 1;
-		}
-		else {
-			L_i = 0;
-		}
-		S_n += L_i;
-	}
-	return S_n;
-}
 
 double PSK(int N, int n,int k) {
 	vector<int> Sn_values;
+	default_random_engine generator;
+	uniform_real_distribution<double> distribution(0.0, 1.0);
 	for (unsigned int i = 0; i < N; i++) {
 		int S_n = generate_Sn(n);
-		cout << S_n << endl;
+		//cout << S_n << endl;
 		Sn_values.push_back(S_n);
 	}
 	int count_k = 0;
@@ -127,28 +107,47 @@ double PSK(int N, int n,int k) {
 }
 
 
+int generate_Sn(int n) {
+	// With C++ tool	
+	//double U_i;
+	double p_i;
+	double L_i;
+	double S_n = 0;
+
+	for (unsigned int i = 1; i < n + 1; i++) {
+		double U_i = distribution(generator);
+		cout << U_i << endl;
+		p_i = 1 - ((double)i / ((double)n + 1));
+		cout << "p : " << p_i << " ; U : " << U_i << endl;
+		if (p_i > U_i) {
+			L_i = 1;
+		}
+		else {
+			L_i = 0;
+		}
+		S_n += L_i;
+	}
+	return S_n;
+}
+
 int main()
 {
 	///// Generate n independent variables Ui uniform on [0,1]
 	// QQQ : Should we use congrential generator ? C++ tool ? 
 
 	// Distribution of Sn
-	int N = 1000; // number of Simulation
-	int n = 50; // n
-	int k; //k
-	cout << PSK(N, n, k) << endl; 
-	
-
-	
-	
+	int N = 1; // number of Simulation
+	int n = 1; // n
+	int k=1; //k
+	cout << "Result for Simulation : " << PSK(N, n, k) << endl;
 
 	//  Andersen-Sidenius-Basu algorithm
 	// Test
-	cout << Andersen_sidenius_Basu(1, 1) << endl;
+	cout << "Result for Andersen Sidenius Basu : "<<Andersen_sidenius_Basu(1, 1, 1) << endl;
 
 
 	// Hull-White algorithm
-	cout << Hull_White(1, 1)<<endl;
+	cout << "Result for Hull White : " << Hull_White(1, 1)<<endl;
 
 	return 0;
 
