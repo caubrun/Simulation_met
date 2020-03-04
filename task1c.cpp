@@ -19,7 +19,7 @@ using namespace std;
 double Andersen_sidenius_Basu(int k, int j, int n) {
 	//double P_S_j_K = 0, P_S_j_k;
 	if ((k > n) | (j < 0) | (k < 0)) {
-		cout << "0 case : n=" << n << " and k = " << k << endl;
+		//cout << "0 case : n=" << n << " and k = " << k << endl;
 		return 0;
 	}
 	else {
@@ -38,7 +38,7 @@ double Andersen_sidenius_Basu(int k, int j, int n) {
 			}
 			else {
 				double P_L = 1 - ((double)j / ((double)n + 1));
-				cout << P_L << "k = " << k << " ; n =" << n << endl;
+				//cout << P_L << "k = " << k << " ; n =" << n << endl;
 				return Andersen_sidenius_Basu(k, j - 1,n) * (1 - P_L) + Andersen_sidenius_Basu(k - 1, j - 1,n) * (P_L);
 			}
 		}
@@ -57,8 +57,8 @@ double Hull_White(int n, int k) {
 		for (unsigned int j = 1; j <= n; j++) {
 			double PL = 1 - ((double)j / ((double)n + 1));
 			ci = PL / (1 - PL);
-			cout << "P = " << PL << endl;
-			cout << "ci = " << ci << endl;
+			//cout << "P = " << PL << endl;
+			//cout << "ci = " << ci << endl;
 			Vi += pow(ci, i);
 		}
 		Vn.push_back(Vi);
@@ -68,8 +68,8 @@ double Hull_White(int n, int k) {
 		}
 		
 		for (unsigned int l = 0; l < Vn.size(); l++) {
-			cout << "V" << l << " = " << Vn[l]<<endl;
-			cout << "U" << Un.size() - l-1 << " = " << Un[Un.size() - l-1] << endl;
+			//cout << "V" << l << " = " << Vn[l]<<endl;
+			//cout << "U" << Un.size() - l-1 << " = " << Un[Un.size() - l-1] << endl;
 			Ui += pow(-1, l) * (Vn[l] * Un[Un.size() - l-1]);
 		}
 		Ui = Ui / (Un.size() + 1);
@@ -86,27 +86,8 @@ double Hull_White(int n, int k) {
 
 
 
-
-double PSK(int N, int n,int k) {
-	vector<int> Sn_values;
-	default_random_engine generator;
-	uniform_real_distribution<double> distribution(0.0, 1.0);
-	for (unsigned int i = 0; i < N; i++) {
-		int S_n = generate_Sn(n);
-		//cout << S_n << endl;
-		Sn_values.push_back(S_n);
-	}
-	int count_k = 0;
-	for (unsigned int i = 0; i < Sn_values.size(); i++) {
-		if (Sn_values[i] == k) {
-			count_k += 1;
-		}
-	}
-	double PSk = count_k / N;
-	return PSk;
-}
-
-
+default_random_engine generator;
+uniform_real_distribution<double> distribution(0.0, 1.0);
 int generate_Sn(int n) {
 	// With C++ tool	
 	//double U_i;
@@ -116,9 +97,9 @@ int generate_Sn(int n) {
 
 	for (unsigned int i = 1; i < n + 1; i++) {
 		double U_i = distribution(generator);
-		cout << U_i << endl;
+		//cout << U_i << endl;
 		p_i = 1 - ((double)i / ((double)n + 1));
-		cout << "p : " << p_i << " ; U : " << U_i << endl;
+		//cout << "p : " << p_i << " ; U : " << U_i << endl;
 		if (p_i > U_i) {
 			L_i = 1;
 		}
@@ -130,24 +111,45 @@ int generate_Sn(int n) {
 	return S_n;
 }
 
+double PSK(int N, int n,int k) {
+	vector<int> Sn_values;
+	
+	for (unsigned int i = 0; i < N; i++) {
+		int S_n = generate_Sn(n);
+		//cout << S_n << endl;
+		Sn_values.push_back(S_n);
+	}
+	int count_k = 0;
+	for (unsigned int i = 0; i < Sn_values.size(); i++) {
+		if (Sn_values[i] == k) {
+			count_k += 1;
+		}
+	}
+	double PSk = (double)count_k / (double)N;
+	return PSk;
+}
+
+
+
+
 int main()
 {
 	///// Generate n independent variables Ui uniform on [0,1]
 	// QQQ : Should we use congrential generator ? C++ tool ? 
 
 	// Distribution of Sn
-	int N = 1; // number of Simulation
-	int n = 1; // n
+	int N = 10; // number of Simulation
+	int n = 2; // n
 	int k=1; //k
 	cout << "Result for Simulation : " << PSK(N, n, k) << endl;
 
 	//  Andersen-Sidenius-Basu algorithm
 	// Test
-	cout << "Result for Andersen Sidenius Basu : "<<Andersen_sidenius_Basu(1, 1, 1) << endl;
+	cout << "Result for Andersen Sidenius Basu : "<<Andersen_sidenius_Basu(k,n,n) << endl;
 
 
 	// Hull-White algorithm
-	cout << "Result for Hull White : " << Hull_White(1, 1)<<endl;
+	cout << "Result for Hull White : " << Hull_White(n,k)<<endl;
 
 	return 0;
 
