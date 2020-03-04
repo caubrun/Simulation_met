@@ -84,17 +84,10 @@ double Hull_White(int n, int k) {
 }
 
 
-int main()
-{
-	///// Generate n independent variables Ui uniform on [0,1]
-	// QQQ : Should we use congrential generator ? C++ tool ? 
-
+int generate_Sn(int n) {
 	// With C++ tool
 	default_random_engine generator;
 	uniform_real_distribution<double> distribution(0.0, 1.0);
-
-	// Generate Sn
-	int n = 1000; // number of variables 
 
 	double U_i;
 	double p_i;
@@ -113,15 +106,41 @@ int main()
 		}
 		S_n += L_i;
 	}
-	cout << S_n << endl;
+	return S_n;
+}
 
-	// Compute Sn distribution
-	int k = 500;
-	double proba_k;
+double PSK(int N, int n,int k) {
+	vector<int> Sn_values;
+	for (unsigned int i = 0; i < N; i++) {
+		int S_n = generate_Sn(n);
+		cout << S_n << endl;
+		Sn_values.push_back(S_n);
+	}
+	int count_k = 0;
+	for (unsigned int i = 0; i < Sn_values.size(); i++) {
+		if (Sn_values[i] == k) {
+			count_k += 1;
+		}
+	}
+	double PSk = count_k / N;
+	return PSk;
+}
 
-	/*for (unsigned int i = 0; i < n; i++) {
 
-	}*/
+int main()
+{
+	///// Generate n independent variables Ui uniform on [0,1]
+	// QQQ : Should we use congrential generator ? C++ tool ? 
+
+	// Distribution of Sn
+	int N = 1000; // number of Simulation
+	int n = 50; // n
+	int k; //k
+	cout << PSK(N, n, k) << endl; 
+	
+
+	
+	
 
 	//  Andersen-Sidenius-Basu algorithm
 	// Test
