@@ -48,7 +48,15 @@ double Andersen_sidenius_Basu(int k, int j, int n) {
 
 double Hull_White(int n, int k) {
 	double pi_n = 1;
-	double ci;
+	for (unsigned int i = 1; i <= n; i++) {
+		double PL = 1 - ((double)i / ((double)n + 1));
+		pi_n *= (1 - PL);
+	}
+	if (k == 0) {
+		return pi_n;
+	}
+	
+	double cj;
 	vector<double> Vn;
 	vector<double> Un;
 	for (unsigned int i = 0; i < k; i++) {
@@ -56,11 +64,12 @@ double Hull_White(int n, int k) {
 		double Vi = 0;
 		for (unsigned int j = 1; j <= n; j++) {
 			double PL = 1 - ((double)j / ((double)n + 1));
-			ci = PL / (1 - PL);
+			cj = PL / (1 - PL);
 			//cout << "P = " << PL << endl;
 			//cout << "ci = " << ci << endl;
-			Vi += pow(ci, i);
+			Vi += pow(cj, i+1);
 		}
+		cout << "i = " << i << "; Vi =" << Vi << endl;
 		Vn.push_back(Vi);
 		double Ui = 0;
 		if (Un.size() == 0) {
@@ -72,14 +81,14 @@ double Hull_White(int n, int k) {
 			//cout << "U" << Un.size() - l-1 << " = " << Un[Un.size() - l-1] << endl;
 			Ui += pow(-1, l) * (Vn[l] * Un[Un.size() - l-1]);
 		}
-		Ui = Ui / (Un.size() + 1);
+		Ui = Ui / (Un.size());
 		Un.push_back(Ui);	
 	}
 
-	for (unsigned int i = 1; i <= n; i++) {
+	/*for (unsigned int i = 1; i <= n; i++) {
 		double PL = 1 - ((double)i / ((double)n + 1));
 		pi_n *= (1 - PL);
-	}
+	}*/
 	return pi_n*Un[Un.size()-1];
 }
 
@@ -139,18 +148,19 @@ int main()
 
 	// Distribution of Sn
 	int N = 10; // number of Simulation
-	int n = 2; // n
-	int k=1; //k
-	cout << "Result for Simulation : " << PSK(N, n, k) << endl;
+	int n = 10; // n
+	for (unsigned int k = 0; k <= n; k++) {
+		cout << "Result for Simulation : " << PSK(N, n, k) << endl;
 
-	//  Andersen-Sidenius-Basu algorithm
-	// Test
-	cout << "Result for Andersen Sidenius Basu : "<<Andersen_sidenius_Basu(k,n,n) << endl;
+		//  Andersen-Sidenius-Basu algorithm
+		// Test
+		cout << "Result for Andersen Sidenius Basu : " << Andersen_sidenius_Basu(k, n, n) << endl;
 
 
-	// Hull-White algorithm
-	cout << "Result for Hull White : " << Hull_White(n,k)<<endl;
-
+		// Hull-White algorithm
+		cout << "Result for Hull White : " << Hull_White(n, k) << endl;
+	}
+	
 	return 0;
 
 }
