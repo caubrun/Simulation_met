@@ -1,0 +1,8 @@
+﻿  task1c.cpp
+C:\Users\cecil\OneDrive\Documents\Imperial College\COURS\Simulation Methods for finance\coursework\task1c\task1c.cpp(33,32): warning C4018: '<=' : incompatibilité signed/unsigned
+C:\Users\cecil\OneDrive\Documents\Imperial College\COURS\Simulation Methods for finance\coursework\task1c\task1c.cpp(54,29): warning C4018: '<' : incompatibilité signed/unsigned
+C:\Users\cecil\OneDrive\Documents\Imperial College\COURS\Simulation Methods for finance\coursework\task1c\task1c.cpp(57,30): warning C4018: '<=' : incompatibilité signed/unsigned
+C:\Users\cecil\OneDrive\Documents\Imperial College\COURS\Simulation Methods for finance\coursework\task1c\task1c.cpp(79,29): warning C4018: '<=' : incompatibilité signed/unsigned
+C:\Users\cecil\OneDrive\Documents\Imperial College\COURS\Simulation Methods for finance\coursework\task1c\task1c.cpp(104,29): warning C4018: '<' : incompatibilité signed/unsigned
+C:\Users\cecil\OneDrive\Documents\Imperial College\COURS\Simulation Methods for finance\coursework\task1c\task1c.cpp(120,9): warning C4101: 'proba_k' : variable locale non référencée
+  task1c.vcxproj -> C:\Users\cecil\OneDrive\Documents\Imperial College\COURS\Simulation Methods for finance\coursework\task1c\Debug\task1c.exe
