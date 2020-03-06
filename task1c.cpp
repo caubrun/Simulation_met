@@ -130,6 +130,8 @@ class het_probabilities {
 	vector<double> probs;
 	vector<double> and_sid_bas_probs;
 	vector<double> hull_white_probs;
+	vector<double> error_asd_dist;
+	vector<double> error_hw_dist;
 public:
 	het_probabilities(const int& sims = 1, const int& k = 1) {
 		simulations = sims;
@@ -138,6 +140,8 @@ public:
 		probs = temp;
 		and_sid_bas_probs = temp;
 		hull_white_probs = temp;
+		error_hw_dist = temp;
+		error_asd_dist = temp;
 	}
 
 	//void simulation_probs(vector<double>& sim_probs) {
@@ -180,11 +184,25 @@ public:
 			hull_white_probs[k]=(p);
 		}
 	}
+	void errors_ASD_computation() {
+		for (unsigned int k = 0; k <= max_k; k++) {
+			double e = abs(probs[k] - and_sid_bas_probs[k]) / and_sid_bas_probs[k];
+			error_asd_dist[k] = e;
+		}
+	}
+	void errors_HW_computation() {
+		for (unsigned int k = 0; k <= max_k; k++) {
+			double e = abs(probs[k]-hull_white_probs[k])/ hull_white_probs[k];
+			error_hw_dist[k] = e;
+		}
+	}
 	void print() {
 		for (int i = 0; i <= max_k; i++) {
 			cout << "Simulation result : P(S" << max_k << "=" << i << ") = " << probs[i] << endl;
 			cout << "Andersen Sidenius Basu Algorithm result : P(S" << max_k << "=" << i << ") = " << and_sid_bas_probs[i] << endl;
+			cout << "Andersen Sidenius Basu Algorithm relative error for : P(S" << max_k << "=" << i << ") is " << error_asd_dist[i] << endl;
 			cout << "Hull White Algorithm result : P(S" << max_k << "=" << i << ") = " << hull_white_probs[i] << endl;
+			cout << "Hull White Algorithm relative error for : P(S" << max_k << "=" << i << ") is " << error_hw_dist[i] << endl;
 		}
 	}
 };
@@ -424,6 +442,8 @@ int main()
 	probabilities.simulation_probs();
 	probabilities.And_Sid_Bas();
 	probabilities.Hull_White_dis();
+	probabilities.errors_ASD_computation();
+	probabilities.errors_HW_computation();
 	probabilities.print();
 
 	////////////////
