@@ -1,4 +1,4 @@
-﻿// task1.cpp
+// task1.cpp
 //
 
 /*Task 1: Sum of Random Variables. For Sn = L1 + ... + Ln, assume Li are
@@ -17,6 +17,7 @@ with those from Cramer's theorem and the Central Limit Theorem as n increases.*/
 #include <iomanip>
 #include <functional> 
 #include <fstream>
+#include<string>
 
 using namespace std;
 
@@ -24,6 +25,12 @@ using namespace std;
 ////////////////////////////////////////////////////////////////////////////////////////////////
 //				Distribution of S_n : Heterogeneous Portfolio								  //
 ////////////////////////////////////////////////////////////////////////////////////////////////
+
+// With functions
+// With C++ tool : to generate standard Uniform random variable
+default_random_engine generator;
+uniform_real_distribution<double> distribution(0.0, 1.0);
+
 
 ///////////////////////////////// Andersen Sidenius Basu algo
 
@@ -175,13 +182,13 @@ public:
 	void And_Sid_Bas() {
 		for (unsigned int k = 0; k <= max_k; k++) {
 			double p = Andersen_sidenius_Basu(k, max_k, max_k);
-			and_sid_bas_probs[k]=(p);
+			and_sid_bas_probs[k] = (p);
 		}
 	}
 	void Hull_White_dis() {
 		for (unsigned int k = 0; k <= max_k; k++) {
-			double p = Hull_White(max_k,k);
-			hull_white_probs[k]=(p);
+			double p = Hull_White(max_k, k);
+			hull_white_probs[k] = (p);
 		}
 	}
 	void errors_ASD_computation() {
@@ -192,7 +199,7 @@ public:
 	}
 	void errors_HW_computation() {
 		for (unsigned int k = 0; k <= max_k; k++) {
-			double e = abs(probs[k]-hull_white_probs[k])/ hull_white_probs[k];
+			double e = abs(probs[k] - hull_white_probs[k]) / hull_white_probs[k];
 			error_hw_dist[k] = e;
 		}
 	}
@@ -213,226 +220,186 @@ public:
 		myfile.open(filename + ".csv");
 		myfile << "k;Simulation;Andersen Sidenius Basu Algorithm result;Andersen Sidenius Basu Algorithm error;Hull White Algorithm result;Hull White Algorithm error .\n";
 		for (int i = 0; i <= max_k; i++) {
-			myfile << i << ";"<< probs[i] <<";"<< and_sid_bas_probs[i] <<";"<< error_asd_dist[i] <<";"<< hull_white_probs[i] <<";" << error_hw_dist[i]  << ".\n" ;
+			myfile << i << ";" << probs[i] << ";" << and_sid_bas_probs[i] << ";" << error_asd_dist[i] << ";" << hull_white_probs[i] << ";" << error_hw_dist[i] << ".\n";
 		}
 	}
 };
-
-
-// With functions
-// With C++ tool : to generate standard Uniform random variable
-default_random_engine generator;
-uniform_real_distribution<double> distribution(0.0, 1.0);
-//int generate_Sn(int n) {
-//	/* This function takes an integer n as argument and generate the sum S_n = L1 + L2 + ... + Ln where Li is Bernoulli B(pi)*/
-//	// Initialisation
-//	double p_i;
-//	double L_i;
-//	double S_n = 0;
-//
-//	// Sum generation
-//	for (unsigned int i = 1; i < n + 1; i++) {
-//		double U_i = distribution(generator);
-//		//TEST cout << U_i << endl;
-//		p_i = 1 - ((double)i / ((double)n + 1));
-//		//TEST cout << "p : " << p_i << " ; U : " << U_i << endl;
-//		if (p_i > U_i) {
-//			L_i = 1;
-//		}
-//		else {
-//			L_i = 0;
-//		}
-//		S_n += L_i;
-//	}
-//	return S_n;
-//}
-//
-//double PSK(int N, int n, int k) {
-//	/*this function takes 3 integers N,n,k as argument and return the result of N simulations of S_n to estimate P(S_n=k)*/
-//	//initialisation : we store the values of S_n in a vector
-//	vector<int> Sn_values;
-//
-//	// Generation of S_n, N times
-//	for (unsigned int i = 0; i < N; i++) {
-//		int S_n = generate_Sn(n);
-//		//TEST cout << S_n << endl;
-//		Sn_values.push_back(S_n);
-//	}
-//	// Count of the number of times S_n has been equal to k
-//	int count_k = 0;
-//	for (unsigned int i = 0; i < Sn_values.size(); i++) {
-//		if (Sn_values[i] == k) {
-//			count_k += 1;
-//		}
-//	}
-//	double PSk = (double)count_k / (double)N;
-//	return PSk;
-//}
-
-
-
-
 
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 //								Tails Distribution study									  //
 ////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-///////////////////////////////// Bernoulli Distribution ///////////////////////////////////////// 
-
-///////////////////////////////// Monte Carlo simulation 
-// Poisson generator by C++ tool
-default_random_engine generator_bernoulli;
-
-int bernoulli(double p, int n) {
-	/* This function takes a double p and an integer n as arguments and return the sum of n Bernoulli random variables of parameter p*/
-	// Tool to generate the Bernoulli random  variable of parameter p
-	bernoulli_distribution bernoulli_distribution(p);
-	// Initialisation of the sum
-	int S_n = 0;
-	// Generation the random variables and computation of the sum
-	for (unsigned int i = 0; i < n; i++) {
-		int Xi_Ber = bernoulli_distribution(generator_bernoulli);
-		//TEST cout << Xi_poi << endl;
-		S_n += Xi_Ber;
-	}
-	return S_n;
-}
-
-double Bernoulli_dist(double x, int N, int n, double p) {
-	/*This function takes 2 doubles x and p and 2 integers N and n as arguments and returns the estimated value of P(S_n > nx) with N simulations*/
-
-	// Initialisation : we store the values of the sum S_n in a vector
-	vector<int> Sn_values;
-	// Simulation of S_n, N times
-	for (unsigned int i = 0; i < N; i++) {
-		int S_n = bernoulli(p, n);
-		Sn_values.push_back(S_n);
-	}
-	// Count how many times S_n has been superior to nx
-	int count = 0;
-	for (unsigned int k = 0; k < Sn_values.size(); k++) {
-		if (Sn_values[k] >= n * x) {
-			count += 1;
-		}
-	}
-	return (double)count / (double)N;
-}
-
-///////////////////////////////// Cramer 
-double cramer_bernoulli(double x, int N, int n, double p) {
-	/*This function takes 2 doubles x and p and 2 integers N and n as arguments and returns ln(P(S_n > nx))/n*/
-	return log(Bernoulli_dist(x, N, n, p)) / (double)n;
-}
-
-// TO REDO
-double gamma_star_bernoulli(double x, double p) {
-	/*this function takes 2 doubles as arguments x and lambda and returns the value Gamma*(x) for a Poisson distribution of parameter lambda*/
-	double inf = numeric_limits<double>::infinity();
-	if (x < 0) {
-		return inf;
-	}
-	else {
-		if (x == 0) {
-			return -log(1 - p);
-		}
-		else {
-			if ((x > 0)& (x < 1)) {
-				return x*log(x*(1-p)/(p*(1-x))) - log(x*(1-p)/(1-x) + 1 -p);
-			}
-			else {
-				if (x == 1) {
-					return -log(p);
-				}
-				else {
-					if (x > 1) {
-						return inf;
-					}
-				}
-			}
-		}
-	}
-}
-
-
-///////////////////////////////// Centrale Limit Theorem
-double central_limit_bernoulli(double x, double N, int n, double p) {
-	/*This function takes 3 doubles x, N and lambda and 1 integer n as arguments and returns the following probability P(>)*/
-	double X = (p*(1-p) * x ) / sqrt((double)n)+p;
-	//cout << X << endl;
-	return Bernoulli_dist(X, N, n, p);
-}
-
-
-
 double normalCDF(double x)
 {/*normal cdf*/
 	return erfc(-x / sqrt(2)) / 2;
 }
 
 
-///////////////////////////////// Poisson Distribution ///////////////////////////////////////// 
+class tail {
+protected:
+	int n, N;
+public:
+	tail(int nb_bond, int nb_sims) {
+		n = nb_bond;
+		N = nb_sims;
+	}
+	virtual int generate_Sn() = 0;
+	virtual double distribution(double x) = 0;
+	virtual double Cramer(double x) = 0;
+	virtual double CLT(double x) = 0;
+	virtual double gamma(double x) = 0;
+	void write(double x, ofstream &myfile0) {
+		myfile0 << "n;Pber(Sn>x);Cramer;Gamma*;Central_limit;1-Normal.\n";
+		myfile0 << n << ";" << distribution(x) << ";" << Cramer(x) << ";" << -gamma(x) << ";" << CLT(x) << ";" << normalCDF(x) << ".\n";
+	}
+};
+///////////////////////////////// Bernoulli Distribution ///////////////////////////////////////// 
 
 ///////////////////////////////// Monte Carlo simulation 
 // Poisson generator by C++ tool
+default_random_engine generator_bernoulli;
+// Poisson generator by C++ tool
 default_random_engine generator_poisson;
 
-int poisson(double lambda, int n) {
-	/* This function takes a double lambda and an integer n as arguments and return the sum of n poisson random variables of parameter lambda*/
-	// Tool to generate the poisson random  variable of parameter lambda
-	poisson_distribution<int> poisson_distribution(lambda);
-	// Initialisation of the sum
-	int S_n = 0;
-	// Generation the random variables and computation of the sum
-	for (unsigned int i = 0; i < n; i++) {
-		int Xi_poi = poisson_distribution(generator_poisson);
-		//TEST cout << Xi_poi << endl;
-		S_n += Xi_poi;
-	}
-	return S_n;
-}
 
-double poisson_dist(double x, int N, int n, double lambda) {
-	/*This function takes 2 doubles x and lambda and 2 integers N and n as arguments and returns the estimated value of P(S_n > nx) with N simulations*/
+class bernoulli : public tail {
+	double p;
+public:
+	bernoulli(int nb_bond, int nb_sims, double parameter) :tail(nb_bond, nb_sims) {
+		p = parameter;
+	}
+	int generate_Sn() {
+		/* This function takes a double p and an integer n as arguments and return the sum of n Bernoulli random variables of parameter p*/
+	// Tool to generate the Bernoulli random  variable of parameter p
+		bernoulli_distribution bernoulli_distribution(p);
+		// Initialisation of the sum
+		int S_n = 0;
+		// Generation the random variables and computation of the sum
+		for (unsigned int i = 0; i < n; i++) {
+			int Xi_Ber = bernoulli_distribution(generator_bernoulli);
+			//TEST cout << Xi_poi << endl;
+			S_n += Xi_Ber;
+		}
+		return S_n;
+	}
+	double distribution(double x) {
+		/*This function takes 2 doubles x and p and 2 integers N and n as arguments and returns the estimated value of P(S_n > nx) with N simulations*/
 
 	// Initialisation : we store the values of the sum S_n in a vector
-	vector<int> Sn_values;
-	// Simulation of S_n, N times
-	for (unsigned int i = 0; i < N; i++) {
-		int S_n = poisson(lambda, n);
-		Sn_values.push_back(S_n);
+		vector<int> Sn_values;
+		// Simulation of S_n, N times
+		for (unsigned int i = 0; i < N; i++) {
+			int S_n = generate_Sn();
+			Sn_values.push_back(S_n);
+		}
+		// Count how many times S_n has been superior to nx
+		int count = 0;
+		for (unsigned int k = 0; k < Sn_values.size(); k++) {
+			if (Sn_values[k] >= n * x) {
+				count += 1;
+			}
+		}
+		return (double)count / (double)N;
 	}
-	// Count how many times S_n has been superior to nx
-	int count = 0;
-	for (unsigned int k = 0; k < Sn_values.size(); k++) {
-		if (Sn_values[k] >= n * x) {
-			count += 1;
+	double Cramer(double x) {
+		/*This function takes 2 doubles x and p and 2 integers N and n as arguments and returns ln(P(S_n > nx))/n*/
+		return log(distribution(x)) / (double)n;
+	}
+	double gamma(double x) {
+		/*this function takes 2 doubles as arguments x and lambda and returns the value Gamma*(x) for a Poisson distribution of parameter lambda*/
+		double inf = numeric_limits<double>::infinity();
+		if (x < 0) {
+			return inf;
+		}
+		else {
+			if (x == 0) {
+				return -log(1 - p);
+			}
+			else {
+				if ((x > 0)& (x < 1)) {
+					return x * log(x * (1 - p) / (p * (1 - x))) - log(x * (1 - p) / (1 - x) + 1 - p);
+				}
+				else {
+					if (x == 1) {
+						return -log(p);
+					}
+					else {
+						if (x > 1) {
+							return inf;
+						}
+					}
+				}
+			}
 		}
 	}
-	return (double)count / (double)N;
-}
-
-///////////////////////////////// Cramer
-double cramer_poisson(double x, int N, int n, double lambda) {
-	/*This function takes 2 doubles x and lambda and 2 integers N and n as arguments and returns ln(P(S_n > nx))/n*/
-	return log(poisson_dist(x, N, n, lambda)) / (double)n;
-}
-
-double gamma_star_poisson(double x, double lambda) {
-	/*this function takes 2 doubles as arguments x and lambda and returns the value Gamma*(x) for a Poisson distribution of parameter lambda*/
-	return log(x / lambda) * x - x + lambda;
-}
+	double CLT(double x) {
+		/*This function takes 3 doubles x, N and lambda and 1 integer n as arguments and returns the following probability P(>)*/
+		double X = (p * (1 - p) * x) / sqrt((double)n) + p;
+		//cout << X << endl;
+		return distribution(X);
+	}
+};
 
 
-///////////////////////////////// Centrale Limit Theorem
-double central_limit_poisson(double x, double N, int n, double lambda) {
-	/*This function takes 3 doubles x, N and lambda and 1 integer n as arguments and returns the following probability P(>)*/
-	double X = (sqrt(lambda) * x) / sqrt((double)n) + lambda;
-	//cout << X << endl;
-	return poisson_dist(X, N, n, lambda);
-}
+///////////////////////////////// Poisson Distribution ///////////////////////////////////////// 
+
+class poisson : public tail {
+	double lambda;
+public:
+	poisson(int nb_bond, int nb_sims, double parameter) :tail(nb_bond, nb_sims) {
+		lambda = parameter;
+	}
+	int generate_Sn() {
+		/* This function takes a double lambda and an integer n as arguments and return the sum of n poisson random variables of parameter lambda*/
+	// Tool to generate the poisson random  variable of parameter lambda
+		poisson_distribution<int> poisson_distribution(lambda);
+		// Initialisation of the sum
+		int S_n = 0;
+		// Generation the random variables and computation of the sum
+		for (unsigned int i = 0; i < n; i++) {
+			int Xi_poi = poisson_distribution(generator_poisson);
+			//TEST cout << Xi_poi << endl;
+			S_n += Xi_poi;
+		}
+		return S_n;
+	}
+	double distribution(double x) {
+		/*This function takes 2 doubles x and lambda and 2 integers N and n as arguments and returns the estimated value of P(S_n > nx) with N simulations*/
+
+	// Initialisation : we store the values of the sum S_n in a vector
+		vector<int> Sn_values;
+		// Simulation of S_n, N times
+		for (unsigned int i = 0; i < N; i++) {
+			int S_n = generate_Sn();
+			Sn_values.push_back(S_n);
+		}
+		// Count how many times S_n has been superior to nx
+		int count = 0;
+		for (unsigned int k = 0; k < Sn_values.size(); k++) {
+			if (Sn_values[k] >= n * x) {
+				count += 1;
+			}
+		}
+		return (double)count / (double)N;
+	}
+	double Cramer(double x) {
+		/*This function takes 2 doubles x and lambda and 2 integers N and n as arguments and returns ln(P(S_n > nx))/n*/
+		return log(distribution(x)) / (double)n;
+	}
+	double gamma(double x) {
+		/*this function takes 2 doubles as arguments x and lambda and returns the value Gamma*(x) for a Poisson distribution of parameter lambda*/
+		return log(x / lambda) * x - x + lambda;
+	}
+	double CLT(double x) {
+		/*This function takes 3 doubles x, N and lambda and 1 integer n as arguments and returns the following probability P(>)*/
+		double X = (sqrt(lambda) * x) / sqrt((double)n) + lambda;
+		//cout << X << endl;
+		return distribution(X);
+	}
+};
+
+
 
 
 
@@ -442,14 +409,13 @@ double central_limit_poisson(double x, double N, int n, double lambda) {
 //									   Main Function    									  //
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include<string>
 
 int main()
 {
 	//////////////
-	int sims,blabla = 10;
+	int sims, blabla = 10;
 
-	for (unsigned int i = 0; i < 10; i++) {
+	for (unsigned int i = 1; i <= 10; i++) {
 		sims = i * 1000;
 		het_probabilities probabilities(sims, blabla);
 		probabilities.simulation_probs();
@@ -459,14 +425,12 @@ int main()
 		probabilities.errors_HW_computation();
 		//probabilities.print();
 		auto name = to_string(sims);
-		probabilities.write(name+"simulations");
+		probabilities.write(name + "simulations");
 	}
-	
+
 
 	////////////////
-	// Distribution of Sn
-	//ofstream file;
-	//file.open("distribution_heterogenuous_port.csv");
+	// Tails of Distribution of Sn
 
 	int N = 100; // number of Simulation
 	int n = 10; // n
@@ -477,42 +441,20 @@ int main()
 	double xp = 0.51;
 	double p = 0.5;
 
-	// Extract in CSVfiles
-	ofstream myfile1;
 	ofstream myfile0;
-	myfile0.open("Tail_distribution_Bernoulli.csv");
-	myfile0 << "Pber(Sn>x);Cramer;Gamma*;Central_limit;1-Normal.\n";
-	myfile1.open("Tail_distribution_Poisson.csv");
-	myfile1 << "Ppoisson(Sn>x);Cramer;Gamma*;Central_limit;1-Normal.\n";
-
-	for (int i = 1; i < 100; i++) {
+	myfile0.open("Bernoulli_Tail_distribution.csv");
+	ofstream myfile1;
+	myfile1.open("Poisson_Tail_distribution.csv");
+	for (int i = 1; i < 1000; i++) {
 		n = i * 1000;
-		cout << "Bernoulli for n = "<<n << endl;
-		cout << "P_bernoulli(S("<<n<<")>"<<n*xp<<") = "<< Bernoulli_dist(xp, N, n, p) << endl;
-		cout << "Cramer Validation for Bernoulli Distribution" << endl;
-		cout << "Cramer theorem value : ln(P(S("<<n<<">nx)/n = "  << cramer_bernoulli(xp, N, n, p) << endl;
-		cout << "-Gamma* = "<<-gamma_star_bernoulli(xp, p) << endl;
-		cout << "Centrale Limit theorem Validation for Bernoulli Distribution" << endl;
-		cout << "P((Sn - np)/(sqrt(np(1-p)))>x) = "<<central_limit_bernoulli(xp, N, n, p) << endl;
-		cout << "1-Normal CDF("<<xp<<") = " << 1 - normalCDF(xp) << endl;
-
-		// Csv
-		myfile0 << Bernoulli_dist(xp, N, n, p) << ";" << cramer_bernoulli(xp, N, n, p) << ";" << -gamma_star_bernoulli(xp, p) << ";" << central_limit_bernoulli(xp, N, n, p) << ";" << normalCDF(xp) << ".\n";
-
-		cout << "Poisson for n = " << n << endl;
-		cout << "P_poisson(S(" << n << ")>" << n * x << ") = " << poisson_dist(x, N, n, lambda) << endl;
-		cout << "Cramer Validation for Poisson Distribution" << endl;
-		cout << "Cramer theorem value : ln(P(S(" << n << ">nx)/n = " << cramer_poisson(x, N, n, lambda) << endl;
-		cout << "-Gamma* = " << -gamma_star_poisson(x, lambda) << endl;
-		cout << "Centrale Limit theorem Validation for Poisson Distribution" << endl;
-		cout << "P((Sn-nlambda)/sqrt(n)lambda>x) = " << central_limit_poisson(x, N, n, lambda) << endl;
-		cout << "1-Normal CDF(" << x << ") = " << 1 - normalCDF(x) << endl;
-		
-		//CSV
-		myfile1 << poisson_dist(x, N, n, lambda) << ";" << cramer_poisson(x, N, n, lambda) << ";" << -gamma_star_poisson(x, lambda) << ";" << central_limit_poisson(x, N, n, lambda)<<";"<< normalCDF(x) << ".\n";
+		bernoulli B(n, N, p);
+		B.write(xp, myfile0);
+		poisson P(n, N, lambda);
+		P.write(x, myfile1);
 	}
 	myfile0.close();
 	myfile1.close();
+
 	return 0;
 
 }
