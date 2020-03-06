@@ -205,6 +205,17 @@ public:
 			cout << "Hull White Algorithm relative error for : P(S" << max_k << "=" << i << ") is " << error_hw_dist[i] << endl;
 		}
 	}
+
+	void write(string filename) {
+		/*string filename;
+		cin >> filename;*/
+		ofstream myfile;
+		myfile.open(filename + ".csv");
+		myfile << "k;Simulation;Andersen Sidenius Basu Algorithm result;Andersen Sidenius Basu Algorithm error;Hull White Algorithm result;Hull White Algorithm error .\n";
+		for (int i = 0; i <= max_k; i++) {
+			myfile << i << ";"<< probs[i] <<";"<< and_sid_bas_probs[i] <<";"<< error_asd_dist[i] <<";"<< hull_white_probs[i] <<";" << error_hw_dist[i]  << ".\n" ;
+		}
+	}
 };
 
 
@@ -431,20 +442,26 @@ double central_limit_poisson(double x, double N, int n, double lambda) {
 //									   Main Function    									  //
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-
+#include<string>
 
 int main()
 {
 	//////////////
-	int sims = 1000, blabla = 10;
+	int sims,blabla = 10;
 
-	het_probabilities probabilities(sims, blabla);
-	probabilities.simulation_probs();
-	probabilities.And_Sid_Bas();
-	probabilities.Hull_White_dis();
-	probabilities.errors_ASD_computation();
-	probabilities.errors_HW_computation();
-	probabilities.print();
+	for (unsigned int i = 0; i < 10; i++) {
+		sims = i * 1000;
+		het_probabilities probabilities(sims, blabla);
+		probabilities.simulation_probs();
+		probabilities.And_Sid_Bas();
+		probabilities.Hull_White_dis();
+		probabilities.errors_ASD_computation();
+		probabilities.errors_HW_computation();
+		//probabilities.print();
+		auto name = to_string(sims);
+		probabilities.write(name+"simulations");
+	}
+	
 
 	////////////////
 	// Distribution of Sn
@@ -453,19 +470,6 @@ int main()
 
 	int N = 100; // number of Simulation
 	int n = 10; // n
-
-	//for (unsigned int k = 0; k <= n; k++) {
-	//	cout << "Result for Simulation : " << PSK(N, n, k) << endl;
-
-	////	//  Andersen-Sidenius-Basu algorithm
-	////	
-	//	cout << "Result for Andersen Sidenius Basu : " << Andersen_sidenius_Basu(k, n, n) << endl;
-
-
-	//	// Hull-White algorithm
-	//	cout << "Result for Hull White : " << Hull_White(n, k) << endl;
-	//}
-
 
 	// tails proprieties
 	double x = 5.02;
