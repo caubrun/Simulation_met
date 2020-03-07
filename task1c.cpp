@@ -1,4 +1,4 @@
-// task1.cpp
+﻿// task1.cpp
 //
 
 /*Task 1: Sum of Random Variables. For Sn = L1 + ... + Ln, assume Li are
@@ -35,6 +35,10 @@ uniform_real_distribution<double> distribution(0.0, 1.0);
 ///////////////////////////////// Andersen Sidenius Basu algo
 
 
+/* This looks like it clogs up a lot of memory, as it creates multiple instances of the functions, goes through the same checks again, etc.... rather than  completing the function in a loop*/
+/* I cann suggest an improvement, but maybe in the end... let's focus on other stuff for now*/
+/* NOTE: I THINK THERE IS AN ERROR BELOW*/
+
 double Andersen_sidenius_Basu(int k, int j, int n) {
 	/* this algorithm takes 3 integers as arguments (k,j and n) and compute the distribution P(S_n = k) through the recursive relation of the Andersen Sidenius Basu
 	Algorithm given by : P(S_{j}=k)P(L_{j+1}=0) + P(S_{j}=k-1)P(L_{j+1}=1). This algorithm is a recursive one.*/
@@ -54,7 +58,14 @@ double Andersen_sidenius_Basu(int k, int j, int n) {
 			if (k == j) {
 				double Pk = 1;
 				for (unsigned int i = 0; i <= j; i++) {
+					// I THINK THIS IS WRONG... if you have "k" successes, you need to multiply by probability of getting "Li = 0" for all other events
+					// P(Li = 0) = 1 - pi = 1 - (1 - i/(n+1)) = i/(n+1)
+					/************************************************************************************************************/
+					/*PLEASE DOUBLE CHECK THIS!!*/
+					/************************************************************************************************************/
 					double P_L = 1 - ((double)i / ((double)n + 1));
+					/************************************************************************************************************/
+					/************************************************************************************************************/
 					Pk *= P_L;
 				}
 				return Pk;
