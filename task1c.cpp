@@ -17,9 +17,33 @@ with those from Cramer's theorem and the Central Limit Theorem as n increases.*/
 #include <iomanip>
 #include <functional> 
 #include <fstream>
-#include<string>
+#include <string>
+
+#include <ctime>
+#include <ratio>
+#include <chrono>
 
 using namespace std;
+
+////////////////////////////////////////////////////////////////////////////////////////////////
+//									  Timer functions 										  //
+////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+// GLOBAL VARIABLE TO STORE STARTING TIME:
+chrono::high_resolution_clock::time_point start_time;
+
+void start_timing() {
+	start_time = chrono::high_resolution_clock::now();
+}
+
+double run_time_sec() {
+	chrono::high_resolution_clock::time_point t2 = chrono::high_resolution_clock::now();
+	chrono::duration<double> time_span = chrono::duration_cast<std::chrono::microseconds>(t2 - start_time);
+		//chrono::duration_cast<chrono::duration<double>>(t2 - start_time);
+	double run_duration = time_span.count()/1000000;
+	return run_duration;
+}
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -31,13 +55,13 @@ using namespace std;
 default_random_engine generator;
 uniform_real_distribution<double> distribution(0.0, 1.0);
 
-
 ///////////////////////////////// Andersen Sidenius Basu algo
 
 
 /* This looks like it clogs up a lot of memory, as it creates multiple instances of the functions, goes through the same checks again, etc.... rather than  completing the function in a loop*/
 /* I cann suggest an improvement, but maybe in the end... let's focus on other stuff for now*/
-/* NOTE: I THINK THERE IS AN ERROR BELOW*/
+/* NOTE: I THINK THERE IS AN ERROR BELOW. */
+/* Ok, I misunderstood what that part of the code was doing*/
 
 double Andersen_sidenius_Basu(int k, int j, int n) {
 	/* this algorithm takes 3 integers as arguments (k,j and n) and compute the distribution P(S_n = k) through the recursive relation of the Andersen Sidenius Basu
@@ -58,14 +82,7 @@ double Andersen_sidenius_Basu(int k, int j, int n) {
 			if (k == j) {
 				double Pk = 1;
 				for (unsigned int i = 0; i <= j; i++) {
-					// I THINK THIS IS WRONG... if you have "k" successes, you need to multiply by probability of getting "Li = 0" for all other events
-					// P(Li = 0) = 1 - pi = 1 - (1 - i/(n+1)) = i/(n+1)
-					/************************************************************************************************************/
-					/*PLEASE DOUBLE CHECK THIS!!*/
-					/************************************************************************************************************/
 					double P_L = 1 - ((double)i / ((double)n + 1));
-					/************************************************************************************************************/
-					/************************************************************************************************************/
 					Pk *= P_L;
 				}
 				return Pk;
@@ -191,10 +208,14 @@ public:
 		}
 	}
 	void And_Sid_Bas() {
+		start_time;
 		for (unsigned int k = 0; k <= max_k; k++) {
 			double p = Andersen_sidenius_Basu(k, max_k, max_k);
 			and_sid_bas_probs[k] = (p);
 		}
+		double time_taken = run_time_sec();
+		cout << "Run time:" << time_taken << " seconds" << endl;
+
 	}
 	void Hull_White_dis() {
 		for (unsigned int k = 0; k <= max_k; k++) {
