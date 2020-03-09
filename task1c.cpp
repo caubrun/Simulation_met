@@ -17,8 +17,7 @@ with those from Cramer's theorem and the Central Limit Theorem as n increases.*/
 #include <iomanip>
 #include <functional> 
 #include <fstream>
-#include <string>
-
+#include<string>
 #include <ctime>
 #include <ratio>
 #include <chrono>
@@ -40,8 +39,8 @@ void start_timing() {
 double run_time_sec() {
 	chrono::high_resolution_clock::time_point t2 = chrono::high_resolution_clock::now();
 	chrono::duration<double> time_span = chrono::duration_cast<std::chrono::microseconds>(t2 - start_time);
-		//chrono::duration_cast<chrono::duration<double>>(t2 - start_time);
-	double run_duration = time_span.count()/1000000;
+	//chrono::duration_cast<chrono::duration<double>>(t2 - start_time);
+	double run_duration = time_span.count() / 1000000;
 	return run_duration;
 }
 
@@ -55,13 +54,9 @@ double run_time_sec() {
 default_random_engine generator;
 uniform_real_distribution<double> distribution(0.0, 1.0);
 
+
 ///////////////////////////////// Andersen Sidenius Basu algo
 
-
-/* This looks like it clogs up a lot of memory, as it creates multiple instances of the functions, goes through the same checks again, etc.... rather than  completing the function in a loop*/
-/* I cann suggest an improvement, but maybe in the end... let's focus on other stuff for now*/
-/* NOTE: I THINK THERE IS AN ERROR BELOW. */
-/* Ok, I misunderstood what that part of the code was doing*/
 
 double Andersen_sidenius_Basu(int k, int j, int n) {
 	/* this algorithm takes 3 integers as arguments (k,j and n) and compute the distribution P(S_n = k) through the recursive relation of the Andersen Sidenius Basu
@@ -181,6 +176,7 @@ public:
 
 	//void simulation_probs(vector<double>& sim_probs) {
 	void simulation_probs() {
+		start_time;
 		//vector<double> sim_outcome;
 		for (int sims = 1; sims <= simulations; sims++) {
 			int S_n = 0;
@@ -206,6 +202,8 @@ public:
 		for (int j = 0; j <= max_k; j++) {
 			probs[j] = double(probs[j]) / simulations;
 		}
+		double time_taken = run_time_sec();
+		cout << "Run time for Monte Carlo Simulation for "<< simulations <<" simulations : " << time_taken << " seconds" << endl;
 	}
 	void And_Sid_Bas() {
 		start_time;
@@ -214,14 +212,16 @@ public:
 			and_sid_bas_probs[k] = (p);
 		}
 		double time_taken = run_time_sec();
-		cout << "Run time:" << time_taken << " seconds" << endl;
-
+		cout << "Run time for Andersen Sidenius Basu Algorithm for " << simulations << " simulations : " << time_taken << " seconds" << endl;
 	}
 	void Hull_White_dis() {
+		start_time;
 		for (unsigned int k = 0; k <= max_k; k++) {
 			double p = Hull_White(max_k, k);
 			hull_white_probs[k] = (p);
 		}
+		double time_taken = run_time_sec();
+		cout << "Run time for Hull White Algorithm for " << simulations << " simulations : " << time_taken << " seconds" << endl;
 	}
 	void errors_ASD_computation() {
 		for (unsigned int k = 0; k <= max_k; k++) {
@@ -281,9 +281,17 @@ public:
 	virtual double Cramer(double x) = 0;
 	virtual double CLT(double x) = 0;
 	virtual double gamma(double x) = 0;
-	void write(double x, ofstream &myfile0) {
-		myfile0 << "n;Pber(Sn>x);Cramer;Gamma*;Central_limit;1-Normal.\n";
-		myfile0 << n << ";" << distribution(x) << ";" << Cramer(x) << ";" << -gamma(x) << ";" << CLT(x) << ";" << normalCDF(x) << ".\n";
+	void print(double xc,double xclt) {
+		cout << "n = " << n << " ; " << endl;
+		cout << "distribution = " << distribution(xc) << endl;
+		cout << "Cramer = " << Cramer(xc) << endl;
+		cout << "Gamma = " << -gamma(xc) << endl;
+		cout << "CLT = " << CLT(xclt) << endl;
+		cout << "Theoritical CLT = " << 1-normalCDF(xclt) << endl;
+	}
+	void write(double xc, double xclt, ofstream &myfile0) {
+		//myfile0 << "n;Pber(Sn>x);Cramer;Gamma*;Central_limit;1-Normal.\n";
+		myfile0 << n << ";" << distribution(xc) << ";" << Cramer(xc) << ";" << -gamma(xc) << ";" << CLT(xclt) << ";" << 1-normalCDF(xclt) << ".\n";
 	}
 };
 ///////////////////////////////// Bernoulli Distribution ///////////////////////////////////////// 
@@ -438,56 +446,151 @@ public:
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
-//									   Main Function    									  //
+//									   Main Functions    									  //
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-int main()
+int main1()
 {
 	//////////////
-	int sims, blabla = 10;
+	int sims, blabla;
+	cout << "In this function, we are looking at the distribution of S_n = L1+L2+...Ln, please choose n : " << endl;
+	cin >> blabla;
+	
 
 	for (unsigned int i = 1; i <= 10; i++) {
+		// Define the number of simulations
 		sims = i * 1000;
+		// Compute Sn
 		het_probabilities probabilities(sims, blabla);
+		// Distribution
 		probabilities.simulation_probs();
+		// Andersen Sidenius Basu Algorithm
 		probabilities.And_Sid_Bas();
+		// Hull White Algorithm
 		probabilities.Hull_White_dis();
+
+		//Errors computation
 		probabilities.errors_ASD_computation();
 		probabilities.errors_HW_computation();
+
+		//Print
 		//probabilities.print();
-		auto name = to_string(sims);
-		probabilities.write(name + "simulations");
+		// Write
+		//auto name = to_string(sims);
+		//probabilities.write(name + "simulations");
+	}
+	return 0;
+}
+
+
+
+////////////////
+// Tails of Distribution of Sn
+int main2(){
+	int choice;
+	int n, N = 10000;// n will go to infinity and N is the number of simulations
+	cout << "In this function, we study the tail distribution. Two examples can be studied, choose the one you want : (0) for Bernoulli ; (1) for Poisson" << endl;
+	cin >> choice;
+	double x = -4;
+	vector<double> x_clt;
+	for (unsigned int i = 0; i < 10000; i++) {
+		x += (double)i / 1000;
+		x_clt.push_back(x);
 	}
 
+	if (choice == 0) {
+		// Bernoulli
+		// tails parameters : 
+		vector<double> x_bernoulli_cramer;
+		cout << "Choose the probability p of a Bernoulli distribution please (between 0 and 1)" << endl;
+		double p ;
+		cin >> p;
+		double xb = p;
+		ofstream myfile0;
+		myfile0.open("Bernoulli_Tail_distribution.csv");
+		myfile0 << "n;Pber(Sn>x);Cramer;Gamma*;Central_limit;1-Normal.\n";
+		for (unsigned int i = 0; i < 10000; i++) {
+			xb += (double)i / 1000;
+			x_bernoulli_cramer.push_back(xb);
+		}
+		for (int i = 1; i < 10; i++) {
+			n = i * 100;
+			for (unsigned int j = 0; j < x_bernoulli_cramer.size(); j++) {
+				double x_bc = x_bernoulli_cramer[j];
+				double x_clt_double = x_clt[j];
+				bernoulli B(n, N, p);
+				B.print(x_bc, x_clt_double);
+				B.write(x_bc, x_clt_double, myfile0);
+			}
 
-	////////////////
-	// Tails of Distribution of Sn
+			//P.write(x, myfile1);
+		}
+		myfile0.close();		
 
-	int N = 100; // number of Simulation
-	int n = 10; // n
-
-	// tails proprieties
-	double x = 5.02;
-	double lambda = 5;
-	double xp = 0.51;
-	double p = 0.5;
-
-	ofstream myfile0;
-	myfile0.open("Bernoulli_Tail_distribution.csv");
-	ofstream myfile1;
-	myfile1.open("Poisson_Tail_distribution.csv");
-	for (int i = 1; i < 1000; i++) {
-		n = i * 1000;
-		bernoulli B(n, N, p);
-		B.write(xp, myfile0);
-		poisson P(n, N, lambda);
-		P.write(x, myfile1);
 	}
-	myfile0.close();
-	myfile1.close();
+	else {
+		if (choice == 1) {
+			// Poisson
+			// Parameters : 
+			vector<double> x_poisson_cramer;
+			cout << "Choose the parameter lambda of a Poissn distribution please " << endl;
+			double lambda;
+			cin >> lambda;
+			double xp = lambda;
+			ofstream myfile1;
+			myfile1.open("Poisson_Tail_distribution.csv");
+			myfile1 << "n;Pber(Sn>x);Cramer;Gamma*;Central_limit;1-Normal.\n";
+			for (unsigned int i = 0; i < 10000; i++) {
+				xp += (double)i / 1000;
+				x_poisson_cramer.push_back(xp);
+			}
+			for (int i = 1; i < 10; i++) {
+				n = i * 100;
+				for (unsigned int j = 0; j < x_poisson_cramer.size(); j++) {
+					double x_pc = x_poisson_cramer[j];
+					double x_clt_double = x_clt[j];
+					poisson P(n, N, lambda);
+					P.print(x_pc, x_clt_double);
+					P.write(x_pc,x_clt_double, myfile1);
+				}
+
+				
+			}
+			myfile1.close();
+		}
+	}
+
+	
+
+
+
+	
+	
 
 	return 0;
 
+}
+
+
+int main() {
+	int x=0;
+	while (x != 99) {
+		cout << "Choose which study you want to see : (0) Global task ; (1) Distribution of Sn ; (2) Tails of distribution ; (99) to exit ?" << endl;
+		cin >> x;
+		//if (x == 0) {
+		//	main0();
+		//}
+		if (x == 1) {
+			main1();
+		}
+		else {
+			if (x == 2) {
+				main2();
+			}
+		}
+	}
+	
+	return 0;
 }
 
