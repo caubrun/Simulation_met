@@ -1,0 +1,15 @@
+﻿  task1c.cpp
+C:\Users\thoma\OneDrive\Documents\Simulation_met\task1c.cpp(82,32): warning C4018: '<=': signed/unsigned mismatch
+C:\Users\thoma\OneDrive\Documents\Simulation_met\task1c.cpp(107,29): warning C4018: '<=': signed/unsigned mismatch
+C:\Users\thoma\OneDrive\Documents\Simulation_met\task1c.cpp(120,29): warning C4018: '<': signed/unsigned mismatch
+C:\Users\thoma\OneDrive\Documents\Simulation_met\task1c.cpp(125,30): warning C4018: '<=': signed/unsigned mismatch
+C:\Users\thoma\OneDrive\Documents\Simulation_met\task1c.cpp(213,30): warning C4018: '<=': signed/unsigned mismatch
+C:\Users\thoma\OneDrive\Documents\Simulation_met\task1c.cpp(222,30): warning C4018: '<=': signed/unsigned mismatch
+C:\Users\thoma\OneDrive\Documents\Simulation_met\task1c.cpp(230,30): warning C4018: '<=': signed/unsigned mismatch
+C:\Users\thoma\OneDrive\Documents\Simulation_met\task1c.cpp(236,30): warning C4018: '<=': signed/unsigned mismatch
+C:\Users\thoma\OneDrive\Documents\Simulation_met\task1c.cpp(346,30): warning C4018: '<': signed/unsigned mismatch
+C:\Users\thoma\OneDrive\Documents\Simulation_met\task1c.cpp(359,30): warning C4018: '<': signed/unsigned mismatch
+C:\Users\thoma\OneDrive\Documents\Simulation_met\task1c.cpp(427,30): warning C4018: '<': signed/unsigned mismatch
+C:\Users\thoma\OneDrive\Documents\Simulation_met\task1c.cpp(440,30): warning C4018: '<': signed/unsigned mismatch
+C:\Users\thoma\OneDrive\Documents\Simulation_met\task1c.cpp(402): warning C4715: 'bernoulli::gamma': not all control paths return a value
+  task1c.vcxproj -> C:\Users\thoma\OneDrive\Documents\Simulation_met\x64\Debug\task1c.exe

@@ -30,17 +30,20 @@ using namespace std;
 
 
 // GLOBAL VARIABLE TO STORE STARTING TIME:
-chrono::high_resolution_clock::time_point start_time;
+//chrono::high_resolution_clock::time_point start_time;
+chrono::system_clock::time_point start_time;
 
-void start_timing() {
-	start_time = chrono::high_resolution_clock::now();
+/*
+void start_timing(chrono::high_resolution_clock::time_point t) {
+	start_time = t;
 }
+*/
 
 double run_time_sec() {
-	chrono::high_resolution_clock::time_point t2 = chrono::high_resolution_clock::now();
+	chrono::system_clock::time_point t2 = chrono::system_clock::now();
 	chrono::duration<double> time_span = chrono::duration_cast<std::chrono::microseconds>(t2 - start_time);
 	//chrono::duration_cast<chrono::duration<double>>(t2 - start_time);
-	double run_duration = time_span.count() / 1000000;
+	double run_duration = time_span.count();
 	return run_duration;
 }
 
@@ -176,7 +179,7 @@ public:
 
 	//void simulation_probs(vector<double>& sim_probs) {
 	void simulation_probs() {
-		start_time;
+		start_time = chrono::system_clock::now();
 		//vector<double> sim_outcome;
 		for (int sims = 1; sims <= simulations; sims++) {
 			int S_n = 0;
@@ -203,25 +206,25 @@ public:
 			probs[j] = double(probs[j]) / simulations;
 		}
 		double time_taken = run_time_sec();
-		cout << "Run time for Monte Carlo Simulation for "<< simulations <<" simulations : " << time_taken << " seconds" << endl;
+		cout << "Run time for Monte Carlo Simulation for "<< simulations <<" simulations: " << time_taken << " seconds" << endl;
 	}
 	void And_Sid_Bas() {
-		start_time;
+		start_time = chrono::system_clock::now();
 		for (unsigned int k = 0; k <= max_k; k++) {
 			double p = Andersen_sidenius_Basu(k, max_k, max_k);
 			and_sid_bas_probs[k] = (p);
 		}
 		double time_taken = run_time_sec();
-		cout << "Run time for Andersen Sidenius Basu Algorithm for " << simulations << " simulations : " << time_taken << " seconds" << endl;
+		cout << "Run time for Andersen Sidenius Basu Algorithm: " << time_taken << " seconds" << endl;
 	}
 	void Hull_White_dis() {
-		start_time;
+		start_time = chrono::system_clock::now();
 		for (unsigned int k = 0; k <= max_k; k++) {
 			double p = Hull_White(max_k, k);
 			hull_white_probs[k] = (p);
 		}
 		double time_taken = run_time_sec();
-		cout << "Run time for Hull White Algorithm for " << simulations << " simulations : " << time_taken << " seconds" << endl;
+		cout << "Run time for Hull White Algorithm: " << time_taken << " seconds" << endl;
 	}
 	void errors_ASD_computation() {
 		for (unsigned int k = 0; k <= max_k; k++) {
@@ -236,13 +239,37 @@ public:
 		}
 	}
 	void print() {
+		cout << "\n\n-------------------------------------------PROBABILITIES OF S_n----------------------------------------------" << endl;
+		cout << "MONTE CARLO (MC) PROBABILITIES: \n";
 		for (int i = 0; i <= max_k; i++) {
 			cout << "Simulation result : P(S" << max_k << "=" << i << ") = " << probs[i] << endl;
+		}
+		cout << "\n";
+		cout << "-------------------------------------------------------------------------------------------------------------" << endl;
+		cout << "ANDERSEN SIDENIUS BASU PROBABILITIES: \n";
+		for (int i = 0; i <= max_k; i++) {
 			cout << "Andersen Sidenius Basu Algorithm result : P(S" << max_k << "=" << i << ") = " << and_sid_bas_probs[i] << endl;
-			cout << "Andersen Sidenius Basu Algorithm relative error for : P(S" << max_k << "=" << i << ") is " << error_asd_dist[i] << endl;
+		}
+		cout << "\n";
+		cout << "-------------------------------------------------------------------------------------------------------------" << endl;
+		cout << "HULL WHITE PROBABILITIES: \n";
+		for (int i = 0; i <= max_k; i++) {
 			cout << "Hull White Algorithm result : P(S" << max_k << "=" << i << ") = " << hull_white_probs[i] << endl;
+		}
+		cout << "\n";
+		cout << "-------------------------------------------------------------------------------------------------------------" << endl;
+		cout << "MC vs. ANDERSEN SIDENIUS BASU RELATIVE ERRORS: \n";
+		for (int i = 0; i <= max_k; i++) {
+			cout << "Andersen Sidenius Basu Algorithm relative error for : P(S" << max_k << "=" << i << ") is " << error_asd_dist[i] << endl;
+		}
+		cout << "\n";
+		cout << "-------------------------------------------------------------------------------------------------------------" << endl;
+		cout << "MC vs. HULL WHITE RELATIVE ERRORS: \n";
+		for (int i = 0; i <= max_k; i++) {
 			cout << "Hull White Algorithm relative error for : P(S" << max_k << "=" << i << ") is " << error_hw_dist[i] << endl;
 		}
+		cout << "\n";
+		cout << "-------------------------------------------------------------------------------------------------------------" << endl;
 	}
 
 	void write(string filename) {
@@ -454,32 +481,81 @@ int main1()
 {
 	//////////////
 	int sims, blabla;
-	cout << "In this function, we are looking at the distribution of S_n = L1+L2+...Ln, please choose n : " << endl;
-	cin >> blabla;
 	
+	int choice_m1 = -1; // safeguard to prevent any unwanted behaviour in program
+	while (choice_m1 != 99) {
+		cout << "\n\n--------------------------------------------DISTRIBUTION OF S_n----------------------------------------------" << endl;
+		cout << "Welcome to the sum of random variables (S_n) distribution section. \nHere we calculate the probability distributions for the sum of random variables using:";
+		cout << "\n----------- (1) Monte-Carlo, (2) ANDERSEN SIDENIUS BASU Algorithm and the (3) HULL WHITE Algorithm ----------\n" << endl;
+		cout << "(*)  Continue (any number, excl. 99); \n(99) Return to previous menu\n";
+		cout << "Choice: ";
+		cin >> choice_m1;
 
-	for (unsigned int i = 1; i <= 10; i++) {
-		// Define the number of simulations
-		sims = i * 1000;
-		// Compute Sn
-		het_probabilities probabilities(sims, blabla);
-		// Distribution
-		probabilities.simulation_probs();
-		// Andersen Sidenius Basu Algorithm
-		probabilities.And_Sid_Bas();
-		// Hull White Algorithm
-		probabilities.Hull_White_dis();
+		if (choice_m1 != 99) {
+			cout << "\nPlease choose an integer value 'n' for the value S_n = L1+L2+...Ln" << endl;
+			cout << "Choice (for 'n' > 0): ";
+			cin >> blabla;
+			cout << "\nNumber of simulations: ";
+			cin >> sims;
 
-		//Errors computation
-		probabilities.errors_ASD_computation();
-		probabilities.errors_HW_computation();
+			cout << "\nStarting simulation/ calculations..." << endl;
+			/*ORIGINAL CODE*/
+			/*
+			for (unsigned int i = 1; i <= 10; i++) {
+				// Define the number of simulations
+				sims = i * 1000;
+				// Compute Sn
+				het_probabilities probabilities(sims, blabla);
+				// Distribution
+				probabilities.simulation_probs();
+				// Andersen Sidenius Basu Algorithm
+				probabilities.And_Sid_Bas();
+				// Hull White Algorithm
+				probabilities.Hull_White_dis();
 
-		//Print
-		//probabilities.print();
-		// Write
-		//auto name = to_string(sims);
-		//probabilities.write(name + "simulations");
+				//Errors computation
+				probabilities.errors_ASD_computation();
+				probabilities.errors_HW_computation();
+
+				//Print
+				probabilities.print();
+				// Write
+				//auto name = to_string(sims);
+				//probabilities.write(name + "simulations");
+			}
+			*/
+			// Compute Sn
+			het_probabilities probabilities(sims, blabla);
+			// Distribution
+			probabilities.simulation_probs();
+			// Andersen Sidenius Basu Algorithm
+			probabilities.And_Sid_Bas();
+			// Hull White Algorithm
+			probabilities.Hull_White_dis();
+
+			//Errors computation
+			probabilities.errors_ASD_computation();
+			probabilities.errors_HW_computation();
+
+			//Print
+			probabilities.print();
+			// Write
+			//auto name = to_string(sims);
+			//probabilities.write(name + "simulations");
+			cout << "\nSimulation/ calculations complete." << endl;
+		}
+		else if (choice_m1 == 99) {
+			return 0;
+		}
+		else {
+			cout << "\n\n" << endl;
+			cout << "///////////////////////////////////////" << endl;
+			cout << "// Invalid choice, please try again. //" << endl;
+			cout << "///////////////////////////////////////\n\n\n\n";
+		}
+
 	}
+	
 	return 0;
 }
 
@@ -488,10 +564,6 @@ int main1()
 ////////////////
 // Tails of Distribution of Sn
 int main2(){
-	int choice;
-	int n, N = 10000;// n will go to infinity and N is the number of simulations
-	cout << "In this function, we study the tail distribution. Two examples can be studied, choose the one you want : (0) for Bernoulli ; (1) for Poisson" << endl;
-	cin >> choice;
 	double x = -4;
 	vector<double> x_clt;
 	for (unsigned int i = 0; i < 10000; i++) {
@@ -499,44 +571,76 @@ int main2(){
 		x_clt.push_back(x);
 	}
 
-	if (choice == 0) {
-		// Bernoulli
-		// tails parameters : 
-		vector<double> x_bernoulli_cramer;
-		cout << "Choose the probability p of a Bernoulli distribution please (between 0 and 1)" << endl;
-		double p ;
-		cin >> p;
-		double xb = p;
-		ofstream myfile0;
-		myfile0.open("Bernoulli_Tail_distribution.csv");
-		myfile0 << "n;Pber(Sn>x);Cramer;Gamma*;Central_limit;1-Normal.\n";
-		for (unsigned int i = 0; i < 10000; i++) {
-			xb += (double)i / 1000;
-			x_bernoulli_cramer.push_back(xb);
-		}
-		for (int i = 1; i < 10; i++) {
-			n = i * 100;
-			for (unsigned int j = 0; j < x_bernoulli_cramer.size(); j++) {
-				double x_bc = x_bernoulli_cramer[j];
-				double x_clt_double = x_clt[j];
-				bernoulli B(n, N, p);
-				B.print(x_bc, x_clt_double);
-				B.write(x_bc, x_clt_double, myfile0);
+	int choice_m2 = -1; // safeguard to prevent any unwanted behaviour in program
+	while (choice_m2 != 99) {
+		int n, N = 10000;// n will go to infinity and N is the number of simulations
+		cout << "\n\n---------------------------------------------TAIL DISTRIBUTIONS----------------------------------------------" << endl;
+		cout << "Welcome to the tail distribution section, where we study properties of tail distributions. \nTwo examples can be studied: Please choose the one you want: \n(0)  Bernoulli distribution; \n(1)  Poisson distribution; \n(99) Return to previous menu;" << endl;
+		cout << "Choice: ";
+		cin >> choice_m2;
+		if (choice_m2 == 0) {
+			// Bernoulli
+			// tails parameters : 
+			vector<double> x_bernoulli_cramer;
+			cout << "\n" << endl;
+			cout << "////////////////////////////////" << endl;
+			cout << "//// BERNOULLI distribution ////" << endl;
+			cout << "////////////////////////////////" << endl;
+			cout << "\n" << endl;
+			cout << "Please choose the probability p of a Bernoulli distribution." << endl;
+			cout << "10 iterations will be run using 10,000 values greater than or equal to E[x]" << endl;
+			cout << "(Results will be output to a csv. NOTE: Previous csv will be overwritten)" << endl;
+			cout << "Probability (between 0 and 1): ";
+			double p;
+			cin >> p;
+			cout << "\nStarting simulations..." << endl;
+			double xb = p;
+			ofstream myfile0;
+			myfile0.open("Bernoulli_Tail_distribution.csv");
+			myfile0 << "n;Pber(Sn>x);Cramer;Gamma*;Central_limit;1-Normal.\n";
+			for (unsigned int i = 0; i < 10000; i++) {
+				xb += (double)i / 1000;
+				//cout << xb << endl;
+				x_bernoulli_cramer.push_back(xb);
 			}
+			for (int i = 1; i < 10; i++) {
+				n = i * 100;
+				for (unsigned int j = 0; j < x_bernoulli_cramer.size(); j++) {
+					double x_bc = x_bernoulli_cramer[j];
+					double x_clt_double = x_clt[j];
+					bernoulli B(n, N, p);
+					if (j % 100 == 0) {
+						cout << "\n";
+						cout << "-------------------------------------------------------------------------------------------------------------" << endl;
+						cout << "Iteration:" << i << ", x value:" << x_bernoulli_cramer[j] << endl;
+						cout << "-------------------------------------------------------------------------------------------------------------" << endl;
+						B.print(x_bc, x_clt_double);
+					}
+					B.write(x_bc, x_clt_double, myfile0);
+				}
 
-			//P.write(x, myfile1);
+				//P.write(x, myfile1);
+			}
+			myfile0.close();
+			cout << "\nSimulation complete. \nPlease find output in the file: Bernoulli_Tail_distribution.csv\n" << endl;
+
 		}
-		myfile0.close();		
-
-	}
-	else {
-		if (choice == 1) {
+		else if (choice_m2 == 1) {
 			// Poisson
 			// Parameters : 
 			vector<double> x_poisson_cramer;
-			cout << "Choose the parameter lambda of a Poissn distribution please " << endl;
+			cout << "\n" << endl;
+			cout << "////////////////////////////////" << endl;
+			cout << "///// POISSON distribution /////" << endl;
+			cout << "////////////////////////////////" << endl;
+			cout << "\n" << endl;
+			cout << "Please choose the parameter lambda for the Poisson distribution.\n";
+			cout << "10 iterations will be run using 10,000 values greater than or equal to E[x]" << endl;
+			cout << "(Results will be output to a csv. NOTE: Previous csv will be overwritten)" << endl;
+			cout << "Lambda: ";
 			double lambda;
 			cin >> lambda;
+			cout << "\nStarting simulations..." << endl;
 			double xp = lambda;
 			ofstream myfile1;
 			myfile1.open("Poisson_Tail_distribution.csv");
@@ -551,22 +655,31 @@ int main2(){
 					double x_pc = x_poisson_cramer[j];
 					double x_clt_double = x_clt[j];
 					poisson P(n, N, lambda);
-					P.print(x_pc, x_clt_double);
-					P.write(x_pc,x_clt_double, myfile1);
+					if (j%100 == 0)	{
+						cout << "\n";
+						cout << "-------------------------------------------------------------------------------------------------------------" << endl;
+						cout << "Iteration:" << i << ", x value:" << x_poisson_cramer[j] << endl;
+						cout << "-------------------------------------------------------------------------------------------------------------" << endl;
+						P.print(x_pc, x_clt_double);
+					}
+					P.write(x_pc, x_clt_double, myfile1);
 				}
 
-				
+
 			}
 			myfile1.close();
+			cout << "\nSimulation complete. \nPlease find output in the file: Poisson_Tail_distribution.csv\n" << endl;
+		}
+		else if (choice_m2 == 99) {
+			return 0;
+		}
+		else {
+			cout << "\n\n" << endl;
+			cout << "///////////////////////////////////////" << endl;
+			cout << "// Invalid choice, please try again. //" << endl;
+			cout << "///////////////////////////////////////\n\n\n\n";
 		}
 	}
-
-	
-
-
-
-	
-	
 
 	return 0;
 
@@ -574,20 +687,33 @@ int main2(){
 
 
 int main() {
-	int x=0;
-	while (x != 99) {
-		cout << "Choose which study you want to see : (0) Global task ; (1) Distribution of Sn ; (2) Tails of distribution ; (99) to exit ?" << endl;
-		cin >> x;
-		//if (x == 0) {
-		//	main0();
-		//}
-		if (x == 1) {
+	int choice_m=-1;
+	while (choice_m != 99) {
+		cout << "\n\n--------------------------------------------------MAIN MENU--------------------------------------------------" << endl;
+		cout << "Please enter a choice for the SIMULATION METHOD: \n(0)  Global task; \n(1)  Distribution of Sn; \n(2)  Tails of distribution; \n(99) Exit program;" << endl;
+		cout << "Choice: ";
+		cin >> choice_m;
+		if (choice_m == 0) {
+			cout << "UNDER CONSTRUCTION... SAMI/ HITCHAM PLEASE SEND :P\n";
+		}
+		else if (choice_m == 1) {
 			main1();
 		}
+		else if (choice_m == 2) {
+			main2();
+		}
+		else if (choice_m == 99) {
+			cout << "\n\n" << endl;
+			cout << "////////////////////////////////" << endl;
+			cout << "////// EXITING. Good bye. //////" << endl;
+			cout << "////////////////////////////////" << endl;
+			cout << "\n\n" << endl;
+		}
 		else {
-			if (x == 2) {
-				main2();
-			}
+			cout << "\n\n" << endl;
+			cout << "///////////////////////////////////////" << endl;
+			cout << "// Invalid choice, please try again. //" << endl;
+			cout << "///////////////////////////////////////\n\n\n\n";
 		}
 	}
 	
