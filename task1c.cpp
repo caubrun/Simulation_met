@@ -913,11 +913,12 @@ int main0() {
 	double S0, K, T, R, sigma;
 	int choice_m0 = -1;
 	while (choice_m0 != 99) {
-		cout << "\n\n--------------------------------------------Global task----------------------------------------------" << endl;
+		cout << "\n\n-------------------------------EUROPEAN CALL OPTION: PRICING AND SENSITIVITIES-------------------------------" << endl;
+		//cout << "\n\n--------------------------------------------Global task----------------------------------------------" << endl;
 		cout << "Welcome to the Global Task of the Coursework section. \nHere we compute the price of a call option and its greeks using:";
-		cout << "\n----------- (1) Monte-Carlo, (2) Black - Scholes formula ----------\n" << endl;
-		cout << "\nSeveral statistics are provided like the mean, the variance, the execution time...\n" << endl;
-		cout << "(*)  Continue (any number, excl. 99); \n(99) Return to previous menu\n";
+		cout << "\n-------------------------------- (1) Monte-Carlo, (2) Black - Scholes Formula -------------------------------\n" << endl;
+		cout << "\nSome of the statistics provided include: mean, variance, execution time, etc.\n" << endl;
+		cout << "(*)  Continue (any number, excl. 99); \n(99) Return to previous menu;\n";
 		cout << "Choice: ";
 		cin >> choice_m0;
 		if (choice_m0 != 99) {
@@ -973,10 +974,11 @@ int main1()
 
 	int choice_m1 = -1; // safeguard to prevent any unwanted behaviour in program
 	while (choice_m1 != 99) {
-		cout << "\n\n--------------------------------------------DISTRIBUTION OF S_n----------------------------------------------" << endl;
+		cout << "\n\n---------------------------SUM OF (HETEROGENEOUS) RANDOM VARIABLES: DISTRIBUTIONS----------------------------" << endl;
+		//cout << "\n\n--------------------------------------------DISTRIBUTION OF S_n----------------------------------------------" << endl;		
 		cout << "Welcome to the sum of random variables (S_n) distribution section. \nHere we calculate the probability distributions for the sum of random variables using:";
 		cout << "\n----------- (1) Monte-Carlo, (2) ANDERSEN SIDENIUS BASU Algorithm and the (3) HULL WHITE Algorithm ----------\n" << endl;
-		cout << "(*)  Continue (any number, excl. 99); \n(99) Return to previous menu\n";
+		cout << "(*)  Continue (any number, excl. 99); \n(99) Return to previous menu;\n";
 		cout << "Choice: ";
 		cin >> choice_m1;
 
@@ -1038,8 +1040,11 @@ int main2() {
 	int choice_m2 = -1; // safeguard to prevent any unwanted behaviour in program
 	while (choice_m2 != 99) {
 		int n, N = 1000;// n will go to infinity and N is the number of simulations
-		cout << "\n\n---------------------------------------------TAIL DISTRIBUTIONS----------------------------------------------" << endl;
-		cout << "Welcome to the tail distribution section, where we study properties of tail distributions. \nTwo examples can be studied: Please choose the one you want: \n(0)  Bernoulli distribution; \n(1)  Poisson distribution; \n(99) Return to previous menu;" << endl;
+		cout << "\n\n--------------------------SUM OF (HOMOGENEOUS) RANDOM VARIABLES: TAIL DISTRIBUTIONS--------------------------" << endl;
+		//cout << "\n\n---------------------------------------------TAIL DISTRIBUTIONS----------------------------------------------" << endl;		
+		cout << "Welcome to the tail distribution section, where we study properties of tail distributions. \n";
+		cout << "Two examples can be studied : Please choose the one you want : \n";
+		cout << "(0)  Bernoulli distribution; \n(1)  Poisson distribution; \n(99) Return to previous menu; " << endl;
 		cout << "Choice: ";
 		cin >> choice_m2;
 		if (choice_m2 == 0) {
@@ -1200,7 +1205,11 @@ int main() {
 	int choice_m = -1;
 	while (choice_m != 99) {
 		cout << "\n\n--------------------------------------------------MAIN MENU--------------------------------------------------" << endl;
-		cout << "Please enter a choice for the SIMULATION METHOD: \n(0)  Global task; \n(1)  Distribution of Sn; \n(2)  Tails of distribution; \n(99) Exit program;" << endl;
+		cout << "Please enter a choice for the SIMULATION METHOD: \n";
+		cout << "(0)  European Call Option: Pricing and Sensitivities; \n";
+		cout << "(1)  Sum of (Heterogeneous) Random Variables: Distributions; \n";
+		cout << "(2)  Sum of (Homogeneous) Random Variables: Tail Distributions; \n";
+		cout << "(99) Exit program; " << endl;
 		cout << "Choice: ";
 		cin >> choice_m;
 		if (choice_m == 0) {
