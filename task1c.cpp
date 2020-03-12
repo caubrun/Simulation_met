@@ -80,7 +80,10 @@ public:
 		int a = pow(7, 5);
 		int m = pow(2, 31) - 1;
 		time_t t;
-		int n0 = time(&t);
+		/*int n0 = time(&t);*/
+		random_device rd;  //Will be used to obtain a seed for the random number engine
+		srand(rd());
+		int n0 = rand() % time(&t);
 		for (unsigned int i = 0; i < N; i++) {
 			n0 = (n0 * a);
 
@@ -722,7 +725,7 @@ public:
 	virtual double gamma(double x) = 0;
 	void print(double xc, double xclt) {
 		cout << "n = " << n << " ; " << endl;
-		cout << "Distribution : P(Sn > n*x) = " << distribution(xc) << endl;
+		cout << "Distribution : P(Sn > n*x) = " << distribution(xclt) << endl;
 		cout << "--------- Verification of Cramer Theorem with x = " << xc << "---------" << endl;
 		cout << "Cramer Theorem : ln(P(Sn>n*x))/n = " << Cramer(xc) << endl;
 		cout << "-Gamma*(x) = " << -gamma(xc) << endl;
@@ -768,6 +771,7 @@ public:
 			
 			S_n += Bernoulli[i];
 		}
+		//cout << "Sn = " << S_n << endl;
 		return S_n;
 	}
 	double distribution(double x) {
@@ -777,6 +781,7 @@ public:
 		vector<int> Sn_values;
 		// Simulation of S_n, N times
 		for (unsigned int i = 0; i < N; i++) {
+			//cout << "x=" << x << endl;
 			int S_n = generate_Sn();
 			Sn_values.push_back(S_n);
 		}
@@ -1094,7 +1099,7 @@ int main2() {
 		else if (choice_m2 == 1) {
 			// Poisson
 			// Parameters : 
-			N = 1000;
+			N = 10000;
 			vector<double> x_poisson_cramer;
 			cout << "\n" << endl;
 			cout << "////////////////////////////////" << endl;
@@ -1157,6 +1162,37 @@ int main2() {
 	return 0;
 
 }
+
+//int main2() {
+//	int n, N = 10000;// n will go to infinity and N is the number of simulations
+////			// Bernoulli
+////			// tails parameters : 
+//	double x = -2;
+//	vector<double> x_clt;
+//	for (unsigned int i = 0; i <= 40; i++) {
+//				x += 0.1;
+//				x_clt.push_back(x);
+//			}
+//	vector<double> x_bernoulli_cramer;
+//	double p=0.3;
+//	double xb = p;
+//	for (unsigned int i = 0; i <= 40; i++) {
+//		xb += (1-p)/41;
+//		//cout << xb << endl;
+//		x_bernoulli_cramer.push_back(xb);
+//		}
+//	for (int i = 1; i < 10; i++) {
+//		n = i * 100;
+//		bernoulli B(n, N, p);
+//		for (unsigned int j = 0; j < x_bernoulli_cramer.size(); j++) {
+//			double x_bc = x_bernoulli_cramer[j];
+//			double x_clt_double = x_clt[j];
+//			cout << x_bc << endl;
+//			B.print(x_bc, x_clt_double);
+//		}
+//	}
+//	return 0;
+//}
 
 //////////////////////////////////// Main Function
 
