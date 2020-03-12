@@ -69,6 +69,8 @@ double normalPDF(double x) {
 
 
 class random_gen {
+	/*This class is the random generator for the several tasks of our program. In fact, it allows to generate a vecotr of N uniform random variables, 
+	and to derive N normal variables, N Bernoulli variables, N Poisson variables*/
 	unsigned int N;
 	vector<double> unif;
 public:
@@ -120,14 +122,7 @@ public:
 
 	
 	vector<int> poisson(double lambda) {
-		/*algorithm poisson random number (Knuth):
-	init:
-		Let L ← e−λ, k ← 0 and p ← 1.
-	do:
-		k ← k + 1.
-		Generate uniform random number u in [0,1] and let p ← p × u.
-	while p > L.
-	return k − 1.*/
+		/*algorithm poisson random number (Knuth)*/
 		double L = exp(-lambda);
 		vector<int> poisson_gen;
 		for (unsigned int i = 0; i < N; i++) {
@@ -166,6 +161,8 @@ public:
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
 class Call_EU {
+	/*This class allows to compute the global task. In fact, it computes via Monte Carlo Method : the price of the call option, 
+	the Greeks (likehood ratio and pathwise), the different statistics*/
 	double S0, K, r, T, sigma;
 	double d1 = (1 / (sigma * sqrt(T)) * (log(S0 / K) + (r + 0.5 * sigma * sigma) * T));
 	double d2 = d1 - sigma * sqrt(T);
@@ -504,12 +501,10 @@ double Andersen_sidenius_Basu(int k, unsigned int j, int n) {
 
 	//Initial condition
 	if ((k > n) | (j < 0) | (k < 0)) {
-		//TEST cout << "0 case : n=" << n << " and k = " << k << endl;
 		return 0;
 	}
 	else {
 		if ((j == 0) & (k == 0)) {
-			//TEST cout << "1 case" << endl;
 			return 1;
 		}
 		else {
@@ -525,7 +520,6 @@ double Andersen_sidenius_Basu(int k, unsigned int j, int n) {
 			else {
 				//Recursive relation
 				double P_L = 1 - ((double)j / ((double)n + 1));
-				//TEST cout << P_L << "k = " << k << " ; n =" << n << endl;
 				return Andersen_sidenius_Basu(k, j - 1, n) * (1 - P_L) + Andersen_sidenius_Basu(k - 1, j - 1, n) * (P_L);
 			}
 		}
@@ -589,8 +583,10 @@ double Hull_White(unsigned int n, unsigned int k) {
 
 ///////////////////////////////// Monte Carlo Simulation
 
-// With a class
+
 class het_probabilities {
+	/*This class allows to simulate the sum of random variables Sn according to the probabilities pi and compute its distribution. 
+	It also presents the functions to compute the distribution of Sn via Andersen Sidenius Basu algorithm and the relative error*/
 	int simulations;
 	unsigned int max_k;
 	vector<double> probs;
@@ -610,7 +606,6 @@ public:
 		error_asd_dist = temp;
 	}
 
-	//void simulation_probs(vector<double>& sim_probs) {
 	void simulation_probs() {
 		start_time = chrono::system_clock::now();
 		random_gen U(simulations*max_k);
@@ -850,7 +845,7 @@ public:
 	int generate_Sn() {
 		/* This function takes a double lambda and an integer n as arguments and return the sum of n poisson random variables of parameter lambda*/
 	// Tool to generate the poisson random  variable of parameter lambda
-		poisson_distribution<int> poisson_distribution(lambda);
+		//poisson_distribution<int> poisson_distribution(lambda);
 		// Initialisation of the sum
 		int S_n = 0;
 		// Generation the random variables and computation of the sum
@@ -912,6 +907,8 @@ public:
 //									   Main Functions    									  //
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
+//////////////////////////////////// Main Function for the global task
+
 int main0() {
 	double S0  , K ,T , R  , sigma  ;
 	int choice_m0 = -1;
@@ -967,7 +964,7 @@ int main0() {
 }
 
 
-
+//////////////////////////////////// Main Function for the distribution of Sn
 
 int main1()
 {
@@ -991,31 +988,7 @@ int main1()
 			cin >> sims;
 
 			cout << "\nStarting simulation/ calculations..." << endl;
-			/*ORIGINAL CODE*/
-			/*
-			for (unsigned int i = 1; i <= 10; i++) {
-				// Define the number of simulations
-				sims = i * 1000;
-				// Compute Sn
-				het_probabilities probabilities(sims, blabla);
-				// Distribution
-				probabilities.simulation_probs();
-				// Andersen Sidenius Basu Algorithm
-				probabilities.And_Sid_Bas();
-				// Hull White Algorithm
-				probabilities.Hull_White_dis();
 
-				//Errors computation
-				probabilities.errors_ASD_computation();
-				probabilities.errors_HW_computation();
-
-				//Print
-				probabilities.print();
-				// Write
-				//auto name = to_string(sims);
-				//probabilities.write(name + "simulations");
-			}
-			*/
 			// Compute Sn
 			cout << "Sn computation" <<endl;
 			het_probabilities probabilities(sims, blabla);
@@ -1053,9 +1026,8 @@ int main1()
 }
 
 
+//////////////////////////////////// Main Function for the tail of Sn
 
-////////////////
-// Tails of Distribution of Sn
 int main2() {
 	double x = -5;
 	vector<double> x_clt;
@@ -1121,6 +1093,7 @@ int main2() {
 		else if (choice_m2 == 1) {
 			// Poisson
 			// Parameters : 
+			N = 1000;
 			vector<double> x_poisson_cramer;
 			cout << "\n" << endl;
 			cout << "////////////////////////////////" << endl;
@@ -1143,7 +1116,7 @@ int main2() {
 				x_poisson_cramer.push_back(xp);
 			}
 			for (int i = 1; i < 10; i++) {
-				n = i * 100;
+				n = i * 10;
 				for (unsigned int j = 0; j < x_poisson_cramer.size(); j++) {
 					double x_pc = x_poisson_cramer[j];
 					double x_clt_double = x_clt[j];
@@ -1178,8 +1151,7 @@ int main2() {
 
 }
 
-
-
+//////////////////////////////////// Main Function
 
 int main() {
 	int choice_m = -1;
