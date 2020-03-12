@@ -1,4 +1,4 @@
-﻿// task1.cpp
+// task1.cpp
 //
 
 /*Task 1: Sum of Random Variables. For Sn = L1 + ... + Ln, assume Li are
@@ -69,7 +69,7 @@ double normalPDF(double x) {
 
 
 class random_gen {
-	/*This class is the random generator for the several tasks of our program. In fact, it allows to generate a vecotr of N uniform random variables, 
+	/*This class is the random generator for the several tasks of our program. In fact, it allows to generate a vecotr of N uniform random variables,
 	and to derive N normal variables, N Bernoulli variables, N Poisson variables*/
 	unsigned int N;
 	vector<double> unif;
@@ -120,7 +120,7 @@ public:
 		return normal_gen;
 	}
 
-	
+
 	vector<int> poisson(double lambda) {
 		/*algorithm poisson random number (Knuth)*/
 		double L = exp(-lambda);
@@ -161,7 +161,7 @@ public:
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
 class Call_EU {
-	/*This class allows to compute the global task. In fact, it computes via Monte Carlo Method : the price of the call option, 
+	/*This class allows to compute the global task. In fact, it computes via Monte Carlo Method : the price of the call option,
 	the Greeks (likehood ratio and pathwise), the different statistics*/
 	double S0, K, r, T, sigma;
 	double d1 = (1 / (sigma * sqrt(T)) * (log(S0 / K) + (r + 0.5 * sigma * sigma) * T));
@@ -585,7 +585,7 @@ double Hull_White(unsigned int n, unsigned int k) {
 
 
 class het_probabilities {
-	/*This class allows to simulate the sum of random variables Sn according to the probabilities pi and compute its distribution. 
+	/*This class allows to simulate the sum of random variables Sn according to the probabilities pi and compute its distribution.
 	It also presents the functions to compute the distribution of Sn via Andersen Sidenius Basu algorithm and the relative error*/
 	int simulations;
 	unsigned int max_k;
@@ -608,16 +608,13 @@ public:
 
 	void simulation_probs() {
 		start_time = chrono::system_clock::now();
-		random_gen U(simulations*max_k);
+		random_gen U(simulations * max_k);
 		for (int sims = 1; sims <= simulations; sims++) {
 			int S_n = 0;
 			for (unsigned int i = 1; i <= max_k; i++) {
-				double rand_n = U.get_unif()[i*sims-1];
-				cout <<"u="<< rand_n << endl;
+				double rand_n = U.get_unif()[i * sims - 1];
 				double p_i = 1 - (double(i) / (max_k + 1));
-				cout << "pi = "<<p_i << endl;
 				if (rand_n < p_i) {
-					cout << "yeah" << endl;
 					S_n += 1;
 				}
 			}
@@ -729,15 +726,15 @@ public:
 	void print(double xc, double xclt) {
 		cout << "n = " << n << " ; " << endl;
 		cout << "Distribution : P(Sn > n*x) = " << distribution(xc) << endl;
-		cout << "--------- Verification of Cramer Theorem with x = "<< xc <<"---------" << endl;
+		cout << "--------- Verification of Cramer Theorem with x = " << xc << "---------" << endl;
 		cout << "Cramer Theorem : ln(P(Sn>n*x))/n = " << Cramer(xc) << endl;
 		cout << "-Gamma*(x) = " << -gamma(xc) << endl;
 		cout << "--------- Verification of Central Limit Theorem with x = " << xclt << " ---------" << endl;
-		cout << "P((Sn - n*mu)/(sqrt(n)sigma)<x) = " << CLT(xclt) << endl;
+		cout << "ln(P((Sn - n*mu)/(sqrt(n)sigma)>x))/n = " << CLT(xclt) << endl;
 		cout << "1-NormalCDF(x) =" << 1 - normalCDF(xclt) << endl;
 	}
 	void write(double xc, double xclt, ofstream& myfile0) {
-		myfile0 << n << ";"<<xc <<";"<< distribution(xc) << ";" << Cramer(xc) << ";" << -gamma(xc) << ";" << xclt<<";" << CLT(xclt) << ";" << 1 - normalCDF(xclt) << ".\n";
+		myfile0 << n << ";" << xc << ";" << distribution(xc) << ";" << Cramer(xc) << ";" << -gamma(xc) << ";" << xclt << ";" << CLT(xclt) << ";" << 1 - normalCDF(xclt) << ".\n";
 	}
 };
 ///////////////////////////////// Bernoulli Distribution ///////////////////////////////////////// 
@@ -771,6 +768,7 @@ public:
 		random_gen U(n);
 		vector<int> Bernoulli = U.bernoulli(p);
 		for (unsigned int i = 0; i < Bernoulli.size(); i++) {
+			
 			S_n += Bernoulli[i];
 		}
 		return S_n;
@@ -910,7 +908,7 @@ public:
 //////////////////////////////////// Main Function for the global task
 
 int main0() {
-	double S0  , K ,T , R  , sigma  ;
+	double S0, K, T, R, sigma;
 	int choice_m0 = -1;
 	while (choice_m0 != 99) {
 		cout << "\n\n--------------------------------------------Global task----------------------------------------------" << endl;
@@ -945,7 +943,7 @@ int main0() {
 			}
 			Call_EU s(S0, K, R, T, sigma);
 			s.MonteCarlo(1000000);
-			s.Statistics(cout);	
+			s.Statistics(cout);
 			s.Statistics(ofile);
 		}
 		else if (choice_m0 == 99) {
@@ -957,7 +955,7 @@ int main0() {
 			cout << "// Invalid choice, please try again. //" << endl;
 			cout << "///////////////////////////////////////\n\n\n\n";
 		}
-			
+
 
 
 	}
@@ -990,7 +988,7 @@ int main1()
 			cout << "\nStarting simulation/ calculations..." << endl;
 
 			// Compute Sn
-			cout << "Sn computation" <<endl;
+			cout << "Sn computation" << endl;
 			het_probabilities probabilities(sims, blabla);
 			// Distribution
 			probabilities.simulation_probs();
@@ -1029,16 +1027,16 @@ int main1()
 //////////////////////////////////// Main Function for the tail of Sn
 
 int main2() {
-	double x = -5;
+	double x = -2;
 	vector<double> x_clt;
-	for (unsigned int i = 0; i < 10000; i++) {
-		x += 1/1000;
+	for (unsigned int i = 0; i <= 40; i++) {
+		x += 0.1;
 		x_clt.push_back(x);
 	}
 
 	int choice_m2 = -1; // safeguard to prevent any unwanted behaviour in program
 	while (choice_m2 != 99) {
-		int n, N = 10000;// n will go to infinity and N is the number of simulations
+		int n, N = 1000;// n will go to infinity and N is the number of simulations
 		cout << "\n\n---------------------------------------------TAIL DISTRIBUTIONS----------------------------------------------" << endl;
 		cout << "Welcome to the tail distribution section, where we study properties of tail distributions. \nTwo examples can be studied: Please choose the one you want: \n(0)  Bernoulli distribution; \n(1)  Poisson distribution; \n(99) Return to previous menu;" << endl;
 		cout << "Choice: ";
@@ -1063,24 +1061,31 @@ int main2() {
 			ofstream myfile0;
 			myfile0.open("Bernoulli_Tail_distribution.csv");
 			myfile0 << "n;x;Pber(Sn>x);Cramer;-Gamma*;x;Central_limit;1-NormalCDF.\n";
-			for (unsigned int i = 0; i < 10000; i++) {
-				xb += 1/1000;
+			for (unsigned int i = 0; i <= 40; i++) {
+				xb += (1-p)/41;
 				//cout << xb << endl;
 				x_bernoulli_cramer.push_back(xb);
 			}
 			for (int i = 1; i < 10; i++) {
 				n = i * 100;
+				bernoulli B(n, N, p);
 				for (unsigned int j = 0; j < x_bernoulli_cramer.size(); j++) {
 					double x_bc = x_bernoulli_cramer[j];
 					double x_clt_double = x_clt[j];
-					bernoulli B(n, N, p);
-					if (j % 100 == 0) {
+					//cout << x_bc << endl;
+					//bernoulli B(n, N, p);
+					/*if (j % 100 == 0) {
 						cout << "\n";
 						cout << "-------------------------------------------------------------------------------------------------------------" << endl;
 						cout << "Iteration:" << i << endl;
 						cout << "-------------------------------------------------------------------------------------------------------------" << endl;
 						B.print(x_bc, x_clt_double);
-					}
+					}*/
+					cout << "\n";
+					cout << "-------------------------------------------------------------------------------------------------------------" << endl;
+					cout << "Iteration:" << i << endl;
+					cout << "-------------------------------------------------------------------------------------------------------------" << endl;
+					B.print(x_bc, x_clt_double);
 					B.write(x_bc, x_clt_double, myfile0);
 				}
 
@@ -1111,23 +1116,29 @@ int main2() {
 			ofstream myfile1;
 			myfile1.open("Poisson_Tail_distribution.csv");
 			myfile1 << "n;Pber(Sn>x);Cramer;Gamma*;Central_limit;1-Normal.\n";
-			for (unsigned int i = 0; i < 10000; i++) {
-				xp += 1/1000;
+			for (unsigned int i = 0; i <= 40; i++) {
+				xp += 1 / 10;
 				x_poisson_cramer.push_back(xp);
 			}
 			for (int i = 1; i < 10; i++) {
 				n = i * 10;
+				poisson P(n, N, lambda);
 				for (unsigned int j = 0; j < x_poisson_cramer.size(); j++) {
 					double x_pc = x_poisson_cramer[j];
 					double x_clt_double = x_clt[j];
-					poisson P(n, N, lambda);
-					if (j % 100 == 0) {
+					//poisson P(n, N, lambda);
+					/*if (j % 10 == 0) {
 						cout << "\n";
 						cout << "-------------------------------------------------------------------------------------------------------------" << endl;
 						cout << "Iteration:" << i << endl;
 						cout << "-------------------------------------------------------------------------------------------------------------" << endl;
 						P.print(x_pc, x_clt_double);
-					}
+					}*/
+					cout << "\n";
+					cout << "-------------------------------------------------------------------------------------------------------------" << endl;
+					cout << "Iteration:" << i << endl;
+					cout << "-------------------------------------------------------------------------------------------------------------" << endl;
+					P.print(x_pc, x_clt_double);
 					P.write(x_pc, x_clt_double, myfile1);
 				}
 
