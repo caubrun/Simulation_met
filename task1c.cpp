@@ -1,4 +1,4 @@
-// task1.cpp
+﻿// task1.cpp
 //
 
 /*Task 1: Sum of Random Variables. For Sn = L1 + ... + Ln, assume Li are
@@ -82,7 +82,7 @@ public:
 		time_t t;
 		int n0 = time(&t);
 		for (unsigned int i = 0; i < N; i++) {
-			n0 += (n0 * a);
+			n0 = (n0 * a);
 
 			if (n0 < 0) {
 				n0 = abs(-m - n0);
@@ -609,7 +609,7 @@ public:
 		for (int sims = 1; sims <= simulations; sims++) {
 			int S_n = 0;
 			for (unsigned int i = 1; i <= max_k; i++) {
-				double rand_n = U.get_unif()[i * sims - 1];
+				double rand_n = U.get_unif()[i*sims - 1];
 				double p_i = 1 - (double(i) / (max_k + 1));
 				if (rand_n < p_i) {
 					S_n += 1;
@@ -1113,7 +1113,7 @@ int main2() {
 			myfile1.open("Poisson_Tail_distribution.csv");
 			myfile1 << "n;Pber(Sn>x);Cramer;Gamma*;Central_limit;1-Normal.\n";
 			for (unsigned int i = 0; i <= 40; i++) {
-				xp += 1 / 10;
+				xp += 0.1;
 				x_poisson_cramer.push_back(xp);
 			}
 			for (int i = 1; i < 10; i++) {
