@@ -82,7 +82,7 @@ public:
 		time_t t;
 		int n0 = time(&t);
 		for (unsigned int i = 0; i < N; i++) {
-			n0 = (n0 * a);
+			n0 += (n0 * a);
 
 			if (n0 < 0) {
 				n0 = abs(-m - n0);
@@ -119,8 +119,6 @@ public:
 		}
 		return normal_gen;
 	}
-
-
 	vector<int> poisson(double lambda) {
 		/*algorithm poisson random number (Knuth)*/
 		double L = exp(-lambda);
@@ -130,10 +128,9 @@ public:
 			double p = 1;
 			while (L < p) {
 				k += 1;
-				// If we build only one uniform variable, it gives always the same, since the clock doesnt change in such small time; this is a shortcut
-				random_gen U(N);
-				double u = U.unif[i];
-				//cout << "u= " << u << endl;
+				// If we build only one uniform variable, it gives always the same, since the clock doesnt change in small time; this is a shortcut
+				random_gen U(i +k );
+				double u = U.unif[i+k-1];
 				p *= u;
 			}
 			poisson_gen.push_back(k - 1);
@@ -988,7 +985,6 @@ int main1()
 			cout << "\nStarting simulation/ calculations..." << endl;
 
 			// Compute Sn
-			cout << "Sn computation" << endl;
 			het_probabilities probabilities(sims, blabla);
 			// Distribution
 			probabilities.simulation_probs();
