@@ -141,14 +141,7 @@ public:
 	}
 
 	int poisson(double lambda) {
-		/*algorithm poisson random number (Knuth):
-		   init:
-			   Let L ← e−λ, k ← 0 and p ← 1.
-		   do:
-			   k ← k + 1.
-			   Generate uniform random number u in [0,1] and let p ← p × u.
-		   while p > L.
-		   return k − 1.*/
+		/*algorithm poisson random number (Knuth):*/
 		double L = exp(-lambda);
 		int k = 0;
 		double p = 1;
@@ -164,8 +157,7 @@ public:
 
 
 	int bernoulli(double p) {
-		//cout << uniform() << endl;
-		//double uni = uniform();
+		/*Generate Bernoulli random variable of parameter p*/
 		if (uniform() < p) {
 			return 1;
 		}
@@ -540,14 +532,8 @@ public:
 //				Distribution of S_n : Heterogeneous Portfolio								  //
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-// With functions
-// With C++ tool : to generate standard Uniform random variable
-//default_random_engine generator;
-//uniform_real_distribution<double> distribution(0.0, 1.0);
-
 
 ///////////////////////////////// Andersen Sidenius Basu algo
-
 
 double Andersen_sidenius_Basu(int k, unsigned int j, int n) {
 	/* this algorithm takes 3 integers as arguments (k,j and n) and compute the distribution P(S_n = k) through the recursive relation of the Andersen Sidenius Basu
@@ -603,18 +589,15 @@ double Hull_White(unsigned int n, unsigned int k) {
 	vector<double> Un;
 	// Recursion
 	for (unsigned int i = 0; i < k; i++) {
-		//TEST cout << "k = " << i << endl;
-
+		
 		// Computation of Vi
 		double Vi = 0;
 		for (unsigned int j = 1; j <= n; j++) {
 			double PL = 1 - ((double)j / ((double)n + 1));
 			cj = PL / (1 - PL);
-			//TEST cout << "P = " << PL << endl;
-			//TEST cout << "ci = " << ci << endl;
 			Vi += pow(cj, i + 1);
+			//cout << "i = "<<i<<"  ; Vi = " << Vi << endl;
 		}
-		//TEST cout << "i = " << i << "; Vi =" << Vi << endl;
 		Vn.push_back(Vi);
 
 		// Computation of Ui
@@ -624,14 +607,14 @@ double Hull_White(unsigned int n, unsigned int k) {
 		}
 
 		for (unsigned int l = 0; l < Vn.size(); l++) {
-			//TEST cout << "V" << l << " = " << Vn[l]<<endl;
-			//TEST cout << "U" << Un.size() - l-1 << " = " << Un[Un.size() - l-1] << endl;
+			cout <<"Ui = "<<Ui <<"  Value to add = "<< pow(-1, l)*(Vn[l] * Un[Un.size() - l - 1]) << endl;
 			Ui += pow(-1, l) * (Vn[l] * Un[Un.size() - l - 1]);
+			cout << "Ui after = " << Ui << endl;
+			
 		}
 		Ui = Ui / (Un.size());
 		Un.push_back(Ui);
 	}
-
 	return pi_n * Un[Un.size() - 1];
 }
 
@@ -745,8 +728,6 @@ public:
 	}
 
 	void write(string filename) {
-		/*string filename;
-		cin >> filename;*/
 		ofstream myfile;
 		myfile.open(filename + ".csv");
 		myfile << "k;Simulation;Andersen Sidenius Basu Algorithm result;Andersen Sidenius Basu Algorithm error;Hull White Algorithm result;Hull White Algorithm error .\n";
@@ -793,13 +774,6 @@ public:
 };
 ///////////////////////////////// Bernoulli Distribution ///////////////////////////////////////// 
 
-///////////////////////////////// Monte Carlo simulation 
-// Poisson generator by C++ tool
-//default_random_engine generator_bernoulli;
-// Poisson generator by C++ tool
-//default_random_engine generator_poisson;
-
-
 
 class bernoulli : public tail {
 	double p;
@@ -810,45 +784,27 @@ public:
 	}
 	int generate_Sn() {
 		/* This function takes a double p and an integer n as arguments and return the sum of n Bernoulli random variables of parameter p*/
-	// Tool to generate the Bernoulli random  variable of parameter p
-		//bernoulli_distribution bernoulli_distribution(p);
+	
 		// Initialisation of the sum
 		int S_n = 0;
 		// Generation the random variables and computation of the sum
-		//// Initial code
-		/*for (unsigned int i = 0; i < n; i++) {
-		//	int Xi_Ber = bernoulli_distribution(generator_bernoulli);
-		//	//TEST cout << Xi_poi << endl;
-		//	S_n += Xi_Ber;
-		//}*/
-
 		for (unsigned int i = 0; i < n; i++) {
-			//random_gen r;
-			//r.uniform() ;
-			//cout << r.bernoulli(p) << endl;
 			S_n += r.bernoulli(p);
 			
 		}
-		//cout << "Sn = " << S_n << endl;
 		return S_n;
 	}
 	double distribution(double x) {
 		/*This function takes 2 doubles x and p and 2 integers N and n as arguments and returns the estimated value of P(S_n > nx) with N simulations*/
 		// Simulation of S_n, N times
-		//random_gen r;
-		//cout << "x=" << x << endl;
 		int count = 0;
 		for (unsigned int i = 0; i < N; i++) {
 			int S_n = generate_Sn();
-			/*double mult = ((double)n) * x;*/
-			//cout << "Sn = " << S_n << " ; x = " << x << " ; n = " << n << " ; nx = "<< mult<< endl;
 			// Count how many times S_n has been superior to nx
 			if (S_n >= ((double) n) * x) {
 				count += 1;
 			}
-			//cout << "count = " << count << endl;
 		}
-		//cout << "dis = " << (double)count / (double)N << endl;
 		return (double)count / (double)N;
 	}
 	double Cramer(double x) {
@@ -902,18 +858,9 @@ public:
 	}
 	int generate_Sn() {
 		/* This function takes a double lambda and an integer n as arguments and return the sum of n poisson random variables of parameter lambda*/
-	// Tool to generate the poisson random  variable of parameter lambda
-		//poisson_distribution<int> poisson_distribution(lambda);
 		// Initialisation of the sum
 		int S_n = 0;
 		// Generation the random variables and computation of the sum
-		// Initial code
-		/*for (unsigned int i = 0; i < n; i++) {
-			int Xi_poi = poisson_distribution(generator_poisson);
-			//TEST cout << Xi_poi << endl;
-			S_n += Xi_poi;
-		}*/
-		//random_gen r;
 		for (unsigned int i = 0; i < n; i++) {
 			S_n += r.poisson(lambda);
 		}
@@ -927,8 +874,6 @@ public:
 		for (unsigned int i = 0; i < N; i++) {
 			
 			int S_n = generate_Sn();
-			/*double mult = ((double)n) * x;*/
-			//cout << "Sn = " << S_n << " ; x = " << x << " ; n = " << n << " ; nx = "<< mult<< endl;
 			// Count how many times S_n has been superior to nx
 			if (S_n >= ((double)n) * x) {
 				count += 1;
@@ -970,12 +915,11 @@ int main0() {
 	int n;
 	int choice_m0 = -1;
 	while (choice_m0 != 99) {
-		cout << "\n\n-------------------------------EUROPEAN CALL OPTION: PRICING AND SENSITIVITIES-------------------------------" << endl;
-		//cout << "\n\n--------------------------------------------Global task----------------------------------------------" << endl;
+		cout << "\n\n--------------------------------------------Global task----------------------------------------------" << endl;
 		cout << "Welcome to the Global Task of the Coursework section. \nHere we compute the price of a call option and its greeks using:";
-		cout << "\n-------------------------------- (1) Monte-Carlo, (2) Black - Scholes Formula -------------------------------\n" << endl;
-		cout << "\nSome of the statistics provided include: mean, variance, execution time, etc.\n" << endl;
-		cout << "(*)  Continue (any number, excl. 99); \n(99) Return to previous menu;\n";
+		cout << "\n----------- (1) Monte-Carlo, (2) Black - Scholes formula ----------\n" << endl;
+		cout << "\nSeveral statistics are provided like the mean, the variance, the execution time...\n" << endl;
+		cout << "(*)  Continue (any number, excl. 99); \n(99) Return to previous menu\n";
 		cout << "Choice: ";
 		cin >> choice_m0;
 		if (choice_m0 != 99) {
@@ -1037,11 +981,10 @@ int main1()
 
 	int choice_m1 = -1; // safeguard to prevent any unwanted behaviour in program
 	while (choice_m1 != 99) {
-		cout << "\n\n---------------------------SUM OF (HETEROGENEOUS) RANDOM VARIABLES: DISTRIBUTIONS----------------------------" << endl;
-		//cout << "\n\n--------------------------------------------DISTRIBUTION OF S_n----------------------------------------------" << endl;		
+		cout << "\n\n--------------------------------------------DISTRIBUTION OF S_n----------------------------------------------" << endl;
 		cout << "Welcome to the sum of random variables (S_n) distribution section. \nHere we calculate the probability distributions for the sum of random variables using:";
 		cout << "\n----------- (1) Monte-Carlo, (2) ANDERSEN SIDENIUS BASU Algorithm and the (3) HULL WHITE Algorithm ----------\n" << endl;
-		cout << "(*)  Continue (any number, excl. 99); \n(99) Return to previous menu;\n";
+		cout << "(*)  Continue (any number, excl. 99); \n(99) Return to previous menu\n";
 		cout << "Choice: ";
 		cin >> choice_m1;
 
@@ -1101,14 +1044,9 @@ int main2() {
 	}
 	int choice_m2 = -1; // safeguard to prevent any unwanted behaviour in program
 	while (choice_m2 != 99) {
-
-		int n, N = 1000;// n will go to infinity and N is the number of simulations
-		cout << "\n\n--------------------------SUM OF (HOMOGENEOUS) RANDOM VARIABLES: TAIL DISTRIBUTIONS--------------------------" << endl;
-		//cout << "\n\n---------------------------------------------TAIL DISTRIBUTIONS----------------------------------------------" << endl;		
-		cout << "Welcome to the tail distribution section, where we study properties of tail distributions. \n";
-		cout << "Two examples can be studied : Please choose the one you want : \n";
-		cout << "(0)  Bernoulli distribution; \n(1)  Poisson distribution; \n(99) Return to previous menu; " << endl;
-
+		int n, N = 10000;// n will go to infinity and N is the number of simulations
+		cout << "\n\n---------------------------------------------TAIL DISTRIBUTIONS----------------------------------------------" << endl;
+		cout << "Welcome to the tail distribution section, where we study properties of tail distributions. \nTwo examples can be studied: Please choose the one you want: \n(0)  Bernoulli distribution; \n(1)  Poisson distribution; \n(99) Return to previous menu;" << endl;
 		cout << "Choice: ";
 		cin >> choice_m2;
 		if (choice_m2 == 0) {
@@ -1144,19 +1082,15 @@ int main2() {
 					double x_clt_double = x_clt[j];
 					//cout << x_bc << endl;
 					//bernoulli B(n, N, p);
-					/*if (j % 100 == 0) {
+					if (j % 10 == 0) {
 						cout << "\n";
 						cout << "-------------------------------------------------------------------------------------------------------------" << endl;
 						cout << "Iteration:" << i << endl;
 						cout << "-------------------------------------------------------------------------------------------------------------" << endl;
 						B.print(x_bc, x_clt_double);
-					}*/
-					cout << "\n";
-					cout << "-------------------------------------------------------------------------------------------------------------" << endl;
-					cout << "Iteration:" << i << endl;
-					cout << "-------------------------------------------------------------------------------------------------------------" << endl;
-					B.print(x_bc, x_clt_double);
-					//B.write(x_bc, x_clt_double, myfile0);
+					}
+					
+					B.write(x_bc, x_clt_double, myfile0);
 				}
 
 				//P.write(x, myfile1);
@@ -1197,18 +1131,14 @@ int main2() {
 					double x_pc = x_poisson_cramer[j];
 					double x_clt_double = x_clt[j];
 					//poisson P(n, N, lambda);
-					/*if (j % 10 == 0) {
+					if (j % 10 == 0) {
 						cout << "\n";
 						cout << "-------------------------------------------------------------------------------------------------------------" << endl;
 						cout << "Iteration:" << i << endl;
 						cout << "-------------------------------------------------------------------------------------------------------------" << endl;
 						P.print(x_pc, x_clt_double);
-					}*/
-					cout << "\n";
-					cout << "-------------------------------------------------------------------------------------------------------------" << endl;
-					cout << "Iteration:" << i << endl;
-					cout << "-------------------------------------------------------------------------------------------------------------" << endl;
-					P.print(x_pc, x_clt_double);
+					}
+					
 					P.write(x_pc, x_clt_double, myfile1);
 				}
 
@@ -1232,36 +1162,6 @@ int main2() {
 
 }
 
-//int main2() {
-//	int n, N = 10000;// n will go to infinity and N is the number of simulations
-////			// Bernoulli
-////			// tails parameters : 
-//	double x = -2;
-//	vector<double> x_clt;
-//	for (unsigned int i = 0; i <= 40; i++) {
-//				x += 0.1;
-//				x_clt.push_back(x);
-//			}
-//	vector<double> x_bernoulli_cramer;
-//	double p=0.3;
-//	double xb = p;
-//	for (unsigned int i = 0; i <= 40; i++) {
-//		xb += (1-p)/41;
-//		//cout << xb << endl;
-//		x_bernoulli_cramer.push_back(xb);
-//		}
-//	for (int i = 1; i < 10; i++) {
-//		n = i * 100;
-//		bernoulli B(n, N, p);
-//		for (unsigned int j = 0; j < x_bernoulli_cramer.size(); j++) {
-//			double x_bc = x_bernoulli_cramer[j];
-//			double x_clt_double = x_clt[j];
-//			cout << x_bc << endl;
-//			B.print(x_bc, x_clt_double);
-//		}
-//	}
-//	return 0;
-//}
 
 //////////////////////////////////// Main Function
 
@@ -1269,11 +1169,7 @@ int main() {
 	int choice_m = -1;
 	while (choice_m != 99) {
 		cout << "\n\n--------------------------------------------------MAIN MENU--------------------------------------------------" << endl;
-		cout << "Please enter a choice for the SIMULATION METHOD: \n";
-		cout << "(0)  European Call Option: Pricing and Sensitivities; \n";
-		cout << "(1)  Sum of (Heterogeneous) Random Variables: Distributions; \n";
-		cout << "(2)  Sum of (Homogeneous) Random Variables: Tail Distributions; \n";
-		cout << "(99) Exit program; " << endl;
+		cout << "Please enter a choice for the SIMULATION METHOD: \n(0)  Global task; \n(1)  Distribution of Sn; \n(2)  Tails of distribution; \n(99) Exit program;" << endl;
 		cout << "Choice: ";
 		cin >> choice_m;
 		if (choice_m == 0) {
