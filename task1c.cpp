@@ -1312,7 +1312,7 @@ int main() {
 	int choice_m = -1;
 	while (choice_m != 99) {
 		cout << "\n\n--------------------------------------------------MAIN MENU--------------------------------------------------" << endl;
-		cout << "Please enter a choice for the SIMULATION METHOD: \n(0)  Global task; \n(1)  Distribution of Sn; \n(2)  Tails of distribution; \n(99) Exit program;" << endl;
+		cout << "Please enter a choice for the SIMULATION METHOD: \n(0)  European Call Option:  Pricing and Sensitivities; \n(1)  Sum of (Heterogeneous) Random Variables:  Distributions; \n(2)  Sum of (Homogeneous) Random Variables:  Tail Distributions; \n(99) Exit Program;" << endl;
 		cout << "Choice: ";
 		cin >> choice_m;
 		if (choice_m == 0) {
