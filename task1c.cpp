@@ -947,7 +947,7 @@ int main0() {
 			cin >> n;
 			cout << "\nStarting simulation/ calculations..." << endl;
 
-			ofstream ofile("price.txt"); // creates an ofstream called ofile
+			ofstream ofile("Call_option_stat.txt"); // creates an ofstream called ofile
 			if (!ofile) {
 				cout << "error opening file";
 				exit(1); // error opening file
