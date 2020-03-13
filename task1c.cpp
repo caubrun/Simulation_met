@@ -93,7 +93,7 @@ public:
 		//cout << "N0= " << n0 << endl;
 	}
 
-	double uniform () {
+	double uniform() {
 		//cout << "Constructing" << endl;
 		n0 = (n0 * a);
 		if (n0 < 0) {
@@ -696,7 +696,7 @@ double Hull_White(unsigned int n, unsigned int k) {
 	vector<double> Un;
 	// Recursion
 	for (unsigned int i = 0; i < k; i++) {
-		
+
 		// Computation of Vi
 		double Vi = 0;
 		for (unsigned int j = 1; j <= n; j++) {
@@ -717,7 +717,7 @@ double Hull_White(unsigned int n, unsigned int k) {
 			//cout <<"Ui = "<<Ui <<"  Value to add = "<< pow(-1, l)*(Vn[l] * Un[Un.size() - l - 1]) << endl;
 			Ui += pow(-1, l) * (Vn[l] * Un[Un.size() - l - 1]);
 			//cout << "Ui after = " << Ui << endl;
-			
+
 		}
 		Ui = Ui / (Un.size());
 		Un.push_back(Ui);
@@ -891,13 +891,13 @@ public:
 	}
 	int generate_Sn() {
 		/* This function takes a double p and an integer n as arguments and return the sum of n Bernoulli random variables of parameter p*/
-	
+
 		// Initialisation of the sum
 		int S_n = 0;
 		// Generation the random variables and computation of the sum
 		for (unsigned int i = 0; i < n; i++) {
 			S_n += r.bernoulli(p);
-			
+
 		}
 		return S_n;
 	}
@@ -908,7 +908,7 @@ public:
 		for (unsigned int i = 0; i < N; i++) {
 			int S_n = generate_Sn();
 			// Count how many times S_n has been superior to nx
-			if (S_n >= ((double) n) * x) {
+			if (S_n >= ((double)n) * x) {
 				count += 1;
 			}
 		}
@@ -980,7 +980,7 @@ public:
 	// Initialisation : we store the values of the sum S_n in a vector
 		int count = 0;
 		for (unsigned int i = 0; i < N; i++) {
-			
+
 			int S_n = generate_Sn();
 			// Count how many times S_n has been superior to nx
 			if (S_n >= ((double)n) * x) {
@@ -1018,7 +1018,7 @@ public:
 //////////////////////////////////// Main Function for the global task
 
 int main0() {
-	double S0, K,t, T, R, sigma;
+	double S0, K, t, T, R, sigma;
 	unsigned long long int M;
 	int n;
 	int choice_m0 = -1;
@@ -1062,11 +1062,42 @@ int main0() {
 				cout << "error opening file";
 				exit(1); // error opening file
 			}
-			Call_EU s(S0, K, R,t, T, sigma);
+			Call_EU s(S0, K, R, t, T, sigma);
 			s.MonteCarlo(M, 1);
-			s.Statistics(cout);
+			int choice_stat = -1;
 			s.Statistics(ofile);
+			while (choice_stat != 99) {
+				cout << "\nPlease choose what statistics you want to see :" << endl;
+				cout << "(0) All" << endl;
+				cout << "(1) Price" << endl;
+				cout << "(2) Delta" << endl;
+				cout << "(3) Gamma" << endl;
+				cout << "(4) Vega" << endl;
+				cout << "(5) Rho" << endl;
+				cout << "(99) Exit" << endl;
+				cout << "Choice :" << endl;
+				cin >> choice_stat;
+				if (choice_stat == 0) {
+					s.Statistics(cout);
+				}
+				else if (choice_stat == 1) {
+					s.Price(cout);
+				}
+				else if (choice_stat == 2) {
+					s.Delta(cout);
+				}
+				else if (choice_stat == 3) {
+					s.Gamma(cout);
+				}
+				else if (choice_stat == 4) {
+					s.Vega(cout);
+				}
+				else if (choice_stat == 5) {
+					s.Rho(cout);
+				}
+			}
 		}
+
 		else if (choice_m0 == 99) {
 			return 0;
 		}
@@ -1126,7 +1157,7 @@ int main1()
 			probabilities.print();
 			// Write
 			auto name = to_string(sims);
-			probabilities.write("Distribution of S_n with "+name + "MC simulations");
+			probabilities.write("Distribution of S_n with " + name + "MC simulations");
 			cout << "\nSimulation/ calculations complete." << endl;
 		}
 		else if (choice_m1 == 99) {
@@ -1201,7 +1232,7 @@ int main2() {
 						cout << "-------------------------------------------------------------------------------------------------------------" << endl;
 						B.print(x_bc, x_clt_double);
 					}
-					
+
 					B.write(x_bc, x_clt_double, myfile0);
 				}
 
@@ -1250,7 +1281,7 @@ int main2() {
 						cout << "-------------------------------------------------------------------------------------------------------------" << endl;
 						P.print(x_pc, x_clt_double);
 					}
-					
+
 					P.write(x_pc, x_clt_double, myfile1);
 				}
 
