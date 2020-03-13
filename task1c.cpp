@@ -1018,7 +1018,7 @@ public:
 //////////////////////////////////// Main Function for the global task
 
 int main0() {
-	double S0, K, T, R, sigma;
+	double S0, K,t, T, R, sigma;
 	unsigned long long int M;
 	int n;
 	int choice_m0 = -1;
@@ -1040,6 +1040,9 @@ int main0() {
 			cout << "\nPlease choose a value for the interest rate rho of the call option" << endl;
 			cout << "Choice for 'rho'(double 0.05 for example): ";
 			cin >> R;
+			cout << "\nPlease choose a value for the initiql time t0 of the call option" << endl;
+			cout << "Choice for 't' in number of year (double, 0.5 for example):";
+			cin >> t;
 			cout << "\nPlease choose a value for the maturity T of the call option" << endl;
 			cout << "Choice for 'T' in number of year (double, 0.5 for example):";
 			cin >> T;
@@ -1059,7 +1062,7 @@ int main0() {
 				cout << "error opening file";
 				exit(1); // error opening file
 			}
-			Call_EU s(S0, K, R, T, sigma);
+			Call_EU s(S0, K, R,t, T, sigma);
 			s.MonteCarlo(M, 1);
 			s.Statistics(cout);
 			s.Statistics(ofile);
