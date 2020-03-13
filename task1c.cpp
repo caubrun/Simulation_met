@@ -69,90 +69,110 @@ double normalPDF(double x) {
 
 
 class random_gen {
-	/*This class is the random generator for the several tasks of our program. In fact, it allows to generate a vecotr of N uniform random variables,
-	and to derive N normal variables, N Bernoulli variables, N Poisson variables*/
-	unsigned int N;
-	vector<double> unif;
+	int n0;
+	int a = pow(7, 5);
+	int m = pow(2, 31) - 1;
+	/*unsigned long  a = pow(7, 5);
+	unsigned long  m = pow(2, 31) - 1;
+	unsigned long q = 127773;
+	unsigned long r = 2836;
+	double multiplier = 1.0 / (1.0 + (m - 1));*/
+
 public:
-	random_gen(int nb_variable) {
-		//cout << "Constructing" << endl;
-		N = nb_variable;
-		int a = pow(7, 5);
-		int m = pow(2, 31) - 1;
+	double N1 = 0, N2 = 0; //Normal Random Variable
+
+	/*random_gen() {
 		time_t t;
-		/*int n0 = time(&t);*/
+		n0 = time(&t);
+	}*/
+	random_gen() {
+		time_t t;
 		random_device rd;  //Will be used to obtain a seed for the random number engine
 		srand(rd());
-		int n0 = rand() % time(&t);
-		for (unsigned int i = 0; i < N; i++) {
-			n0 = (n0 * a);
-
-			if (n0 < 0) {
-				n0 = abs(-m - n0);
-			}
-			unif.push_back((double)n0 / (double)m);
-		}
+		n0 = rand() % time(&t);
+		//cout << "N0= " << n0 << endl;
 	}
+
+	double uniform () {
+		//cout << "Constructing" << endl;
+		n0 = (n0 * a);
+		if (n0 < 0) {
+			n0 = abs(-m - n0);
+		}
+		//cout << (double)n0 / (double)m <<endl;
+		return (double)n0 / (double)m;
+	}
+
+	//Generate Uniform RV
+	/*double uniform() {
+		unsigned long k = n0 / q;
+		n0 = a * (n0 - k * q) - r * k;
+		if (n0 < 0) {
+			n0 += m;
+		}
+		return multiplier * n0;
+	}*/
+
 	void print() {
-		for (unsigned int i = 0; i < N; i++) {
-			cout << unif[i] << endl;
-		}
+		cout << uniform() << endl;
 	}
-	vector<double> get_unif() {
-		return unif;
-	}
-	vector<double> normal() {
-		//Algorithm (Marsaglia Polar) 
-		vector<double> normal_gen;
-		while ((int)normal_gen.size() < N) {
-			random_gen U(N);
 
-			for (int i = 0; i < N - 1; i++) {
-				double v1 = 2 * U.unif[i] - 1;
-				double v2 = 2 * U.unif[i + 1] - 1;
-				double W = v1 * v1 + v2 * v2;
-				if (W < 1) {
-					normal_gen.push_back(sqrt(-2 * log(W) / W) * v1);
-					normal_gen.push_back(sqrt(-2 * log(W) / W) * v2);
-				}
-				if (normal_gen.size() == N) {
-					break;
-				}
-			}
-		}
-		return normal_gen;
+	void reset_seed() {
+		time_t t;
+		n0 = time(&t);
 	}
-	vector<int> poisson(double lambda) {
-		/*algorithm poisson random number (Knuth)*/
+
+	//Normal Random Variable - Algorithm (Marsaglia Polar) 
+	void normal() {
+		double v1, v2, W;
+		do {
+			v1 = 2 * uniform() - 1;
+			v2 = 2 * uniform() - 1;
+			W = v1 * v1 + v2 * v2;
+		} while (W > 1);
+		N1 = (sqrt(-2 * log(W) / W) * v1);
+		N2 = (sqrt(-2 * log(W) / W) * v2);
+	}
+
+	//Normal Random Variable - Box-Muller Method
+	void normal2() {
+		N1 = sin(2 * M_PI * uniform()) * sqrt(-2 * log(uniform()));
+		N2 = cos(2 * M_PI * uniform()) * sqrt(-2 * log(uniform()));
+	}
+
+	int poisson(double lambda) {
+		/*algorithm poisson random number (Knuth):
+		   init:
+			   Let L ← e−λ, k ← 0 and p ← 1.
+		   do:
+			   k ← k + 1.
+			   Generate uniform random number u in [0,1] and let p ← p × u.
+		   while p > L.
+		   return k − 1.*/
 		double L = exp(-lambda);
-		vector<int> poisson_gen;
-		for (unsigned int i = 0; i < N; i++) {
-			int k = 0;
-			double p = 1;
-			while (L < p) {
-				k += 1;
-				// If we build only one uniform variable, it gives always the same, since the clock doesnt change in small time; this is a shortcut
-				random_gen U(i +k );
-				double u = U.unif[i+k-1];
-				p *= u;
-			}
-			poisson_gen.push_back(k - 1);
+		int k = 0;
+		double p = 1;
+		while (L < p) {
+			k += 1;
+			// If we build only one uniform variable, it gives always the same, since the clock doesnt change in small time; this is a shortcut
+			double u = uniform();
+			//cout << "u= " << u << endl;
+			p *= u;
 		}
-		return poisson_gen;
-	}
-	vector<int> bernoulli(double p) {
-		vector<int> bernoulli_gen;
-		for (unsigned int i = 0; i < N; i++) {
-			if (unif[i] < p) {
-				bernoulli_gen.push_back(1);
-			}
-			else {
-				bernoulli_gen.push_back(0);
-			}
-		}
-		return bernoulli_gen;
+		return k - 1;
 	}
 
+
+	int bernoulli(double p) {
+		//cout << uniform() << endl;
+		//double uni = uniform();
+		if (uniform() < p) {
+			return 1;
+		}
+		else {
+			return 0;
+		}
+	}
 };
 
 
@@ -161,15 +181,9 @@ public:
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
 class Call_EU {
-	/*This class allows to compute the global task. In fact, it computes via Monte Carlo Method : the price of the call option,
-	the Greeks (likehood ratio and pathwise), the different statistics*/
 	double S0, K, r, T, sigma;
 	double d1 = (1 / (sigma * sqrt(T)) * (log(S0 / K) + (r + 0.5 * sigma * sigma) * T));
 	double d2 = d1 - sigma * sqrt(T);
-
-
-	vector<double> S_T;
-	vector<double> payoff_vec;
 	double payoff_mc = 0.0;
 	double delta_mc_pw = 0.0;
 	double delta_mc_lr = 0.0;
@@ -197,53 +211,81 @@ class Call_EU {
 public:
 	Call_EU(double s, double k, double R, double t, double sig) : S0(s), K(k), r(R), T(t), sigma(sig) {};
 
-	void MonteCarlo(unsigned long long int M) {
-		S_T.clear();
-		payoff_vec.clear();
-		random_gen random(M);
+	void MonteCarlo(unsigned long long int M, int choice) {
 		auto start = chrono::high_resolution_clock::now();
 
-		vector<double> normal = random.normal();
+		random_gen norm;
 		m = M;
 
-		for (int i = 0; i < M; i++) {
-			double Z = normal[i];
-			double S_T_i = S0 * exp((r - 0.5 * sigma * sigma) * T + sigma * sqrt(T) * Z);
-
-			S_T.push_back(S_T_i);
-
-			if (S_T_i > K) {
-				payoff_vec.push_back(S_T_i - K);
-				payoff_mc += (S_T_i - K);
-
-				delta_mc_pw += S_T_i / S0;
-				delta_mc_lr += ((S_T_i - K) * Z) / (S0 * sigma * sqrt(T));
-
-				vega_mc_pw += (Z * sqrt(T) - sigma * T) * S_T_i;
-				vega_mc_lr += (S_T_i - K) * ((Z * Z / sigma) - (Z * sqrt(T)) - (1 / sigma));
-
-				gamma_mc_lr_lr += (S_T_i - K) * ((pow(Z, 2) - 1) / (pow(S0, 2) * pow(sigma, 2) * T) - Z / (pow(S0, 2) * sigma * sqrt(T)));
-				gamma_mc_lr_pw += K * Z / (S0 * S0 * sigma * sqrt(T));
-				gamma_mc_pw_lr += (S_T_i / (S0 * S0)) * ((Z / (sigma * sqrt(T)) - 1));
-
-				rho_mc_pw += K * T;
-				rho_mc_lr += (S_T_i - K) * ((Z * sqrt(T) / sigma) - T);
-
-				sum_square_price += pow((S_T_i - K), 2);
-				sum_square_delta_pw += pow((S_T_i / S0), 2);
-				sum_square_vega_pw += pow(((Z * sqrt(T) - sigma * T) * S_T_i), 2);
-				sum_square_rho_pw += pow(S_T_i * T, 2);
-
-				sum_square_gamma_lr_pw += pow(K * Z / (S0 * S0 * sigma * sqrt(T)), 2);
-				sum_square_gamma_lr_lr += pow((S_T_i - K) * ((pow(Z, 2) - 1) / (pow(S0, 2) * pow(sigma, 2) * T) - Z / (pow(S0, 2) * sigma * sqrt(T))), 2);
-				sum_square_gamma_pw_lr += pow((S_T_i / (S0 * S0)) * ((Z / (sigma * sqrt(T)) - 1)), 2);
-
-				sum_square_delta_lr += pow(((S_T_i - K) * Z) / (S0 * sigma * sqrt(T)), 2);
-				sum_square_vega_lr += pow((S_T_i - K) * ((Z * Z / sigma) - (Z * sqrt(T)) - (1 / sigma)), 2);
-				sum_square_rho_lr += pow((S_T_i - K) * ((Z * sqrt(T) / sigma) - T), 2);
+		for (int i = 0; i < M / 2; i++) {
+			if (choice == 1) {
+				norm.normal();
 			}
 			else {
-				payoff_vec.push_back(0);
+				norm.normal2();
+			}
+			double Z1 = norm.N1;
+			double Z2 = norm.N2;
+			double S_T_1 = S0 * exp((r - 0.5 * sigma * sigma) * T + sigma * sqrt(T) * Z1);
+			double S_T_2 = S0 * exp((r - 0.5 * sigma * sigma) * T + sigma * sqrt(T) * Z2);
+
+			if (S_T_1 > K) {
+				payoff_mc += (S_T_1 - K);
+
+				delta_mc_pw += S_T_1 / S0;
+				delta_mc_lr += ((S_T_1 - K) * Z1) / (S0 * sigma * sqrt(T));
+
+				vega_mc_pw += (Z1 * sqrt(T) - sigma * T) * S_T_1;
+				vega_mc_lr += (S_T_1 - K) * ((Z1 * Z1 / sigma) - (Z1 * sqrt(T)) - (1 / sigma));
+
+				gamma_mc_lr_lr += (S_T_1 - K) * ((pow(Z1, 2) - 1) / (pow(S0, 2) * pow(sigma, 2) * T) - Z1 / (pow(S0, 2) * sigma * sqrt(T)));
+				gamma_mc_lr_pw += K * Z1 / (S0 * S0 * sigma * sqrt(T));
+				gamma_mc_pw_lr += (S_T_1 / (S0 * S0)) * ((Z1 / (sigma * sqrt(T)) - 1));
+
+				rho_mc_pw += K * T;
+				rho_mc_lr += (S_T_1 - K) * ((Z1 * sqrt(T) / sigma) - T);
+
+				sum_square_price += pow((S_T_1 - K), 2);
+				sum_square_delta_pw += pow((S_T_1 / S0), 2);
+				sum_square_vega_pw += pow(((Z1 * sqrt(T) - sigma * T) * S_T_1), 2);
+				sum_square_rho_pw += pow(S_T_1 * T, 2);
+
+				sum_square_gamma_lr_pw += pow(K * Z1 / (S0 * S0 * sigma * sqrt(T)), 2);
+				sum_square_gamma_lr_lr += pow((S_T_1 - K) * ((pow(Z1, 2) - 1) / (pow(S0, 2) * pow(sigma, 2) * T) - Z1 / (pow(S0, 2) * sigma * sqrt(T))), 2);
+				sum_square_gamma_pw_lr += pow((S_T_1 / (S0 * S0)) * ((Z1 / (sigma * sqrt(T)) - 1)), 2);
+
+				sum_square_delta_lr += pow(((S_T_1 - K) * Z1) / (S0 * sigma * sqrt(T)), 2);
+				sum_square_vega_lr += pow((S_T_1 - K) * ((Z1 * Z1 / sigma) - (Z1 * sqrt(T)) - (1 / sigma)), 2);
+				sum_square_rho_lr += pow((S_T_1 - K) * ((Z1 * sqrt(T) / sigma) - T), 2);
+			}
+			if (S_T_2 > K) {
+				payoff_mc += (S_T_2 - K);
+
+				delta_mc_pw += S_T_2 / S0;
+				delta_mc_lr += ((S_T_2 - K) * Z2) / (S0 * sigma * sqrt(T));
+
+				vega_mc_pw += (Z2 * sqrt(T) - sigma * T) * S_T_2;
+				vega_mc_lr += (S_T_2 - K) * ((Z2 * Z2 / sigma) - (Z2 * sqrt(T)) - (1 / sigma));
+
+				gamma_mc_lr_lr += (S_T_2 - K) * ((pow(Z2, 2) - 1) / (pow(S0, 2) * pow(sigma, 2) * T) - Z2 / (pow(S0, 2) * sigma * sqrt(T)));
+				gamma_mc_lr_pw += K * Z2 / (S0 * S0 * sigma * sqrt(T));
+				gamma_mc_pw_lr += (S_T_2 / (S0 * S0)) * ((Z2 / (sigma * sqrt(T)) - 1));
+
+				rho_mc_pw += K * T;
+				rho_mc_lr += (S_T_2 - K) * ((Z2 * sqrt(T) / sigma) - T);
+
+				sum_square_price += pow((S_T_2 - K), 2);
+				sum_square_delta_pw += pow((S_T_2 / S0), 2);
+				sum_square_vega_pw += pow(((Z2 * sqrt(T) - sigma * T) * S_T_2), 2);
+				sum_square_rho_pw += pow(S_T_2 * T, 2);
+
+				sum_square_gamma_lr_pw += pow(K * Z2 / (S0 * S0 * sigma * sqrt(T)), 2);
+				sum_square_gamma_lr_lr += pow((S_T_2 - K) * ((pow(Z2, 2) - 1) / (pow(S0, 2) * pow(sigma, 2) * T) - Z2 / (pow(S0, 2) * sigma * sqrt(T))), 2);
+				sum_square_gamma_pw_lr += pow((S_T_2 / (S0 * S0)) * ((Z2 / (sigma * sqrt(T)) - 1)), 2);
+
+				sum_square_delta_lr += pow(((S_T_2 - K) * Z2) / (S0 * sigma * sqrt(T)), 2);
+				sum_square_vega_lr += pow((S_T_2 - K) * ((Z2 * Z2 / sigma) - (Z2 * sqrt(T)) - (1 / sigma)), 2);
+				sum_square_rho_lr += pow((S_T_2 - K) * ((Z2 * sqrt(T) / sigma) - T), 2);
 			}
 		}
 
@@ -269,7 +311,7 @@ public:
 		sum_square_gamma_pw_lr *= exp(-2 * r * T) / (M * (M - 1));
 
 		auto end = chrono::high_resolution_clock::now();
-		time_taken = chrono::duration_cast<chrono::milliseconds>(end - start).count();
+		time_taken = chrono::duration_cast<chrono::microseconds>(end - start).count();
 	}
 
 	double price_BS() {
@@ -383,8 +425,20 @@ public:
 	ostream& Statistics(ostream& os) {
 
 		os << "Number of Simulations: " << m << endl;
-		os << "Computation Time: " << time_taken << endl;
-		os << "" << endl;
+
+		if (time_taken > 1e9) {
+			os << "Computation Time: " << time_taken / 1e9 << "seconds" << endl;
+		}
+		else if (time_taken > 1e6) {
+			os << "Computation Time: " << time_taken / 1e6 << " milliseconds" << endl;
+		}
+		else if (time_taken > 1e3) {
+			os << "Computation Time: " << time_taken / 1e3 << " microseconds" << endl;
+		}
+		else {
+			os << "Computation Time: " << time_taken << " nanoseconds" << endl;
+		}
+
 
 		os << "Statistics of Call Option: Monte Carlo - Price:" << endl;
 		os << "Estimate of Call Option Price: " << price_mc() << endl;
@@ -608,11 +662,11 @@ public:
 
 	void simulation_probs() {
 		start_time = chrono::system_clock::now();
-		random_gen U(simulations * max_k);
+		random_gen r;
 		for (int sims = 1; sims <= simulations; sims++) {
 			int S_n = 0;
 			for (unsigned int i = 1; i <= max_k; i++) {
-				double rand_n = U.get_unif()[i*sims - 1];
+				double rand_n = r.uniform();
 				double p_i = 1 - (double(i) / (max_k + 1));
 				if (rand_n < p_i) {
 					S_n += 1;
@@ -725,7 +779,7 @@ public:
 	virtual double gamma(double x) = 0;
 	void print(double xc, double xclt) {
 		cout << "n = " << n << " ; " << endl;
-		cout << "Distribution : P(Sn > n*x) = " << distribution(xclt) << endl;
+		cout << "Distribution : P(Sn > n*x) = " << distribution(xc) << endl;
 		cout << "--------- Verification of Cramer Theorem with x = " << xc << "---------" << endl;
 		cout << "Cramer Theorem : ln(P(Sn>n*x))/n = " << Cramer(xc) << endl;
 		cout << "-Gamma*(x) = " << -gamma(xc) << endl;
@@ -746,8 +800,10 @@ public:
 //default_random_engine generator_poisson;
 
 
+
 class bernoulli : public tail {
 	double p;
+	random_gen r;
 public:
 	bernoulli(int nb_bond, int nb_sims, double parameter) :tail(nb_bond, nb_sims) {
 		p = parameter;
@@ -755,7 +811,7 @@ public:
 	int generate_Sn() {
 		/* This function takes a double p and an integer n as arguments and return the sum of n Bernoulli random variables of parameter p*/
 	// Tool to generate the Bernoulli random  variable of parameter p
-		bernoulli_distribution bernoulli_distribution(p);
+		//bernoulli_distribution bernoulli_distribution(p);
 		// Initialisation of the sum
 		int S_n = 0;
 		// Generation the random variables and computation of the sum
@@ -765,33 +821,34 @@ public:
 		//	//TEST cout << Xi_poi << endl;
 		//	S_n += Xi_Ber;
 		//}*/
-		random_gen U(n);
-		vector<int> Bernoulli = U.bernoulli(p);
-		for (unsigned int i = 0; i < Bernoulli.size(); i++) {
+
+		for (unsigned int i = 0; i < n; i++) {
+			//random_gen r;
+			//r.uniform() ;
+			//cout << r.bernoulli(p) << endl;
+			S_n += r.bernoulli(p);
 			
-			S_n += Bernoulli[i];
 		}
 		//cout << "Sn = " << S_n << endl;
 		return S_n;
 	}
 	double distribution(double x) {
 		/*This function takes 2 doubles x and p and 2 integers N and n as arguments and returns the estimated value of P(S_n > nx) with N simulations*/
-
-	// Initialisation : we store the values of the sum S_n in a vector
-		vector<int> Sn_values;
 		// Simulation of S_n, N times
-		for (unsigned int i = 0; i < N; i++) {
-			//cout << "x=" << x << endl;
-			int S_n = generate_Sn();
-			Sn_values.push_back(S_n);
-		}
-		// Count how many times S_n has been superior to nx
+		//random_gen r;
+		//cout << "x=" << x << endl;
 		int count = 0;
-		for (unsigned int k = 0; k < Sn_values.size(); k++) {
-			if (Sn_values[k] >= n * x) {
+		for (unsigned int i = 0; i < N; i++) {
+			int S_n = generate_Sn();
+			/*double mult = ((double)n) * x;*/
+			//cout << "Sn = " << S_n << " ; x = " << x << " ; n = " << n << " ; nx = "<< mult<< endl;
+			// Count how many times S_n has been superior to nx
+			if (S_n >= ((double) n) * x) {
 				count += 1;
 			}
+			//cout << "count = " << count << endl;
 		}
+		//cout << "dis = " << (double)count / (double)N << endl;
 		return (double)count / (double)N;
 	}
 	double Cramer(double x) {
@@ -838,6 +895,7 @@ public:
 
 class poisson : public tail {
 	double lambda;
+	random_gen r;
 public:
 	poisson(int nb_bond, int nb_sims, double parameter) :tail(nb_bond, nb_sims) {
 		lambda = parameter;
@@ -855,10 +913,9 @@ public:
 			//TEST cout << Xi_poi << endl;
 			S_n += Xi_poi;
 		}*/
-		random_gen U(n);
-		vector<int> Poisson = U.poisson(lambda);
-		for (unsigned int i = 0; i < Poisson.size(); i++) {
-			S_n += Poisson[i];
+		//random_gen r;
+		for (unsigned int i = 0; i < n; i++) {
+			S_n += r.poisson(lambda);
 		}
 		return S_n;
 	}
@@ -866,16 +923,14 @@ public:
 		/*This function takes 2 doubles x and lambda and 2 integers N and n as arguments and returns the estimated value of P(S_n > nx) with N simulations*/
 
 	// Initialisation : we store the values of the sum S_n in a vector
-		vector<int> Sn_values;
-		// Simulation of S_n, N times
-		for (unsigned int i = 0; i < N; i++) {
-			int S_n = generate_Sn();
-			Sn_values.push_back(S_n);
-		}
-		// Count how many times S_n has been superior to nx
 		int count = 0;
-		for (unsigned int k = 0; k < Sn_values.size(); k++) {
-			if (Sn_values[k] >= n * x) {
+		for (unsigned int i = 0; i < N; i++) {
+			
+			int S_n = generate_Sn();
+			/*double mult = ((double)n) * x;*/
+			//cout << "Sn = " << S_n << " ; x = " << x << " ; n = " << n << " ; nx = "<< mult<< endl;
+			// Count how many times S_n has been superior to nx
+			if (S_n >= ((double)n) * x) {
 				count += 1;
 			}
 		}
@@ -911,6 +966,8 @@ public:
 
 int main0() {
 	double S0, K, T, R, sigma;
+	unsigned long long int M;
+	int n;
 	int choice_m0 = -1;
 	while (choice_m0 != 99) {
 		cout << "\n\n--------------------------------------------Global task----------------------------------------------" << endl;
@@ -922,20 +979,26 @@ int main0() {
 		cin >> choice_m0;
 		if (choice_m0 != 99) {
 			cout << "\nPlease choose a value for the initial price S0 of the call option" << endl;
-			cout << "Choice for 'S' (100 for example): ";
+			cout << "Choice for 'S' (double, 100 for example): ";
 			cin >> S0;
 			cout << "\nPlease choose a value for the strike K of the call option" << endl;
-			cout << "Choice for 'K' (110 for example):";
+			cout << "Choice for 'K' (double, 110 for example):";
 			cin >> K;
 			cout << "\nPlease choose a value for the interest rate rho of the call option" << endl;
-			cout << "Choice for 'rho'(0.05 for example): ";
+			cout << "Choice for 'rho'(double 0.05 for example): ";
 			cin >> R;
 			cout << "\nPlease choose a value for the maturity T of the call option" << endl;
-			cout << "Choice for 'T' in number of ??? (??? for example):";
+			cout << "Choice for 'T' in number of year (double, 0.5 for example):";
 			cin >> T;
 			cout << "\nPlease choose a value for the volatility sigma of the call option" << endl;
-			cout << "Choice for 'sigma' (0.2 for example): ";
+			cout << "Choice for 'sigma' (double, 0.2 for example): ";
 			cin >> sigma;
+			cout << "\nPlease choose a value for the number of simulations" << endl;
+			cout << "Choice for number of simulations (integer, 10000 for example) : ";
+			cin >> M;
+			cout << "\nPlease choose a method for generating Normal Random Variable :\n(1)  Marsaglia Polar; \n(2)  Box-Muller;" << endl;
+			cout << "Choice for method of Normal Random Generation : ";
+			cin >> n;
 			cout << "\nStarting simulation/ calculations..." << endl;
 
 			ofstream ofile("price.txt"); // creates an ofstream called ofile
@@ -944,7 +1007,7 @@ int main0() {
 				exit(1); // error opening file
 			}
 			Call_EU s(S0, K, R, T, sigma);
-			s.MonteCarlo(1000000);
+			s.MonteCarlo(M, 1);
 			s.Statistics(cout);
 			s.Statistics(ofile);
 		}
@@ -1034,10 +1097,9 @@ int main2() {
 		x += 0.1;
 		x_clt.push_back(x);
 	}
-
 	int choice_m2 = -1; // safeguard to prevent any unwanted behaviour in program
 	while (choice_m2 != 99) {
-		int n, N = 1000;// n will go to infinity and N is the number of simulations
+		int n, N = 10000;// n will go to infinity and N is the number of simulations
 		cout << "\n\n---------------------------------------------TAIL DISTRIBUTIONS----------------------------------------------" << endl;
 		cout << "Welcome to the tail distribution section, where we study properties of tail distributions. \nTwo examples can be studied: Please choose the one you want: \n(0)  Bernoulli distribution; \n(1)  Poisson distribution; \n(99) Return to previous menu;" << endl;
 		cout << "Choice: ";
@@ -1063,12 +1125,12 @@ int main2() {
 			myfile0.open("Bernoulli_Tail_distribution.csv");
 			myfile0 << "n;x;Pber(Sn>x);Cramer;-Gamma*;x;Central_limit;1-NormalCDF.\n";
 			for (unsigned int i = 0; i <= 40; i++) {
-				xb += (1-p)/41;
+				xb += (1 - p) / 820;
 				//cout << xb << endl;
 				x_bernoulli_cramer.push_back(xb);
 			}
 			for (int i = 1; i < 10; i++) {
-				n = i * 100;
+				n = i * 200;
 				bernoulli B(n, N, p);
 				for (unsigned int j = 0; j < x_bernoulli_cramer.size(); j++) {
 					double x_bc = x_bernoulli_cramer[j];
@@ -1087,7 +1149,7 @@ int main2() {
 					cout << "Iteration:" << i << endl;
 					cout << "-------------------------------------------------------------------------------------------------------------" << endl;
 					B.print(x_bc, x_clt_double);
-					B.write(x_bc, x_clt_double, myfile0);
+					//B.write(x_bc, x_clt_double, myfile0);
 				}
 
 				//P.write(x, myfile1);
@@ -1118,7 +1180,7 @@ int main2() {
 			myfile1.open("Poisson_Tail_distribution.csv");
 			myfile1 << "n;Pber(Sn>x);Cramer;Gamma*;Central_limit;1-Normal.\n";
 			for (unsigned int i = 0; i <= 40; i++) {
-				xp += 0.1;
+				xp += 0.024;
 				x_poisson_cramer.push_back(xp);
 			}
 			for (int i = 1; i < 10; i++) {
