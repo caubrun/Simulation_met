@@ -173,9 +173,9 @@ public:
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
 class Call_EU {
-	double S0, K, r, T, sigma;
-	double d1 = (1 / (sigma * sqrt(T)) * (log(S0 / K) + (r + 0.5 * sigma * sigma) * T));
-	double d2 = d1 - sigma * sqrt(T);
+	double S0, K, r, t, T, sigma;
+	double d1 = (1 / (sigma * sqrt((T - t))) * (log(S0 / K) + (r + 0.5 * sigma * sigma) * (T - t)));
+	double d2 = d1 - sigma * sqrt((T - t));
 	double payoff_mc = 0.0;
 	double delta_mc_pw = 0.0;
 	double delta_mc_lr = 0.0;
@@ -201,10 +201,10 @@ class Call_EU {
 
 
 public:
-	Call_EU(double s, double k, double R, double t, double sig) : S0(s), K(k), r(R), T(t), sigma(sig) {};
+	Call_EU(double s, double k, double R, double t0, double t, double sig) : S0(s), K(k), r(R), t(t0), T(t), sigma(sig) {};
 
 	void MonteCarlo(unsigned long long int M, int choice) {
-		auto start = chrono::high_resolution_clock::now();
+		start_time = chrono::system_clock::now();
 
 		random_gen norm;
 		m = M;
@@ -218,96 +218,95 @@ public:
 			}
 			double Z1 = norm.N1;
 			double Z2 = norm.N2;
-			double S_T_1 = S0 * exp((r - 0.5 * sigma * sigma) * T + sigma * sqrt(T) * Z1);
-			double S_T_2 = S0 * exp((r - 0.5 * sigma * sigma) * T + sigma * sqrt(T) * Z2);
+			double S_T_1 = S0 * exp((r - 0.5 * sigma * sigma) * (T - t) + sigma * sqrt((T - t)) * Z1);
+			double S_T_2 = S0 * exp((r - 0.5 * sigma * sigma) * (T - t) + sigma * sqrt((T - t)) * Z2);
 
 			if (S_T_1 > K) {
 				payoff_mc += (S_T_1 - K);
 
 				delta_mc_pw += S_T_1 / S0;
-				delta_mc_lr += ((S_T_1 - K) * Z1) / (S0 * sigma * sqrt(T));
+				delta_mc_lr += ((S_T_1 - K) * Z1) / (S0 * sigma * sqrt((T - t)));
 
-				vega_mc_pw += (Z1 * sqrt(T) - sigma * T) * S_T_1;
-				vega_mc_lr += (S_T_1 - K) * ((Z1 * Z1 / sigma) - (Z1 * sqrt(T)) - (1 / sigma));
+				vega_mc_pw += (Z1 * sqrt((T - t)) - sigma * (T - t)) * S_T_1;
+				vega_mc_lr += (S_T_1 - K) * ((Z1 * Z1 / sigma) - (Z1 * sqrt((T - t))) - (1 / sigma));
 
-				gamma_mc_lr_lr += (S_T_1 - K) * ((pow(Z1, 2) - 1) / (pow(S0, 2) * pow(sigma, 2) * T) - Z1 / (pow(S0, 2) * sigma * sqrt(T)));
-				gamma_mc_lr_pw += K * Z1 / (S0 * S0 * sigma * sqrt(T));
-				gamma_mc_pw_lr += (S_T_1 / (S0 * S0)) * ((Z1 / (sigma * sqrt(T)) - 1));
+				gamma_mc_lr_lr += (S_T_1 - K) * ((pow(Z1, 2) - 1) / (pow(S0, 2) * pow(sigma, 2) * (T - t)) - Z1 / (pow(S0, 2) * sigma * sqrt((T - t))));
+				gamma_mc_lr_pw += K * Z1 / (S0 * S0 * sigma * sqrt((T - t)));
+				gamma_mc_pw_lr += (S_T_1 / (S0 * S0)) * ((Z1 / (sigma * sqrt((T - t))) - 1));
 
-				rho_mc_pw += K * T;
-				rho_mc_lr += (S_T_1 - K) * ((Z1 * sqrt(T) / sigma) - T);
+				rho_mc_pw += K * (T - t);
+				rho_mc_lr += (S_T_1 - K) * ((Z1 * sqrt((T - t)) / sigma) - (T - t));
 
 				sum_square_price += pow((S_T_1 - K), 2);
 				sum_square_delta_pw += pow((S_T_1 / S0), 2);
-				sum_square_vega_pw += pow(((Z1 * sqrt(T) - sigma * T) * S_T_1), 2);
-				sum_square_rho_pw += pow(S_T_1 * T, 2);
+				sum_square_vega_pw += pow(((Z1 * sqrt((T - t)) - sigma * (T - t)) * S_T_1), 2);
+				sum_square_rho_pw += pow(S_T_1 * (T - t), 2);
 
-				sum_square_gamma_lr_pw += pow(K * Z1 / (S0 * S0 * sigma * sqrt(T)), 2);
-				sum_square_gamma_lr_lr += pow((S_T_1 - K) * ((pow(Z1, 2) - 1) / (pow(S0, 2) * pow(sigma, 2) * T) - Z1 / (pow(S0, 2) * sigma * sqrt(T))), 2);
-				sum_square_gamma_pw_lr += pow((S_T_1 / (S0 * S0)) * ((Z1 / (sigma * sqrt(T)) - 1)), 2);
+				sum_square_gamma_lr_pw += pow(K * Z1 / (S0 * S0 * sigma * sqrt((T - t))), 2);
+				sum_square_gamma_lr_lr += pow((S_T_1 - K) * ((pow(Z1, 2) - 1) / (pow(S0, 2) * pow(sigma, 2) * (T - t)) - Z1 / (pow(S0, 2) * sigma * sqrt((T - t)))), 2);
+				sum_square_gamma_pw_lr += pow((S_T_1 / (S0 * S0)) * ((Z1 / (sigma * sqrt((T - t))) - 1)), 2);
 
-				sum_square_delta_lr += pow(((S_T_1 - K) * Z1) / (S0 * sigma * sqrt(T)), 2);
-				sum_square_vega_lr += pow((S_T_1 - K) * ((Z1 * Z1 / sigma) - (Z1 * sqrt(T)) - (1 / sigma)), 2);
-				sum_square_rho_lr += pow((S_T_1 - K) * ((Z1 * sqrt(T) / sigma) - T), 2);
+				sum_square_delta_lr += pow(((S_T_1 - K) * Z1) / (S0 * sigma * sqrt((T - t))), 2);
+				sum_square_vega_lr += pow((S_T_1 - K) * ((Z1 * Z1 / sigma) - (Z1 * sqrt((T - t))) - (1 / sigma)), 2);
+				sum_square_rho_lr += pow((S_T_1 - K) * ((Z1 * sqrt((T - t)) / sigma) - (T - t)), 2);
 			}
 			if (S_T_2 > K) {
 				payoff_mc += (S_T_2 - K);
 
 				delta_mc_pw += S_T_2 / S0;
-				delta_mc_lr += ((S_T_2 - K) * Z2) / (S0 * sigma * sqrt(T));
+				delta_mc_lr += ((S_T_2 - K) * Z2) / (S0 * sigma * sqrt((T - t)));
 
-				vega_mc_pw += (Z2 * sqrt(T) - sigma * T) * S_T_2;
-				vega_mc_lr += (S_T_2 - K) * ((Z2 * Z2 / sigma) - (Z2 * sqrt(T)) - (1 / sigma));
+				vega_mc_pw += (Z2 * sqrt((T - t)) - sigma * (T - t)) * S_T_2;
+				vega_mc_lr += (S_T_2 - K) * ((Z2 * Z2 / sigma) - (Z2 * sqrt((T - t))) - (1 / sigma));
 
-				gamma_mc_lr_lr += (S_T_2 - K) * ((pow(Z2, 2) - 1) / (pow(S0, 2) * pow(sigma, 2) * T) - Z2 / (pow(S0, 2) * sigma * sqrt(T)));
-				gamma_mc_lr_pw += K * Z2 / (S0 * S0 * sigma * sqrt(T));
-				gamma_mc_pw_lr += (S_T_2 / (S0 * S0)) * ((Z2 / (sigma * sqrt(T)) - 1));
+				gamma_mc_lr_lr += (S_T_2 - K) * ((pow(Z2, 2) - 1) / (pow(S0, 2) * pow(sigma, 2) * (T - t)) - Z2 / (pow(S0, 2) * sigma * sqrt((T - t))));
+				gamma_mc_lr_pw += K * Z2 / (S0 * S0 * sigma * sqrt((T - t)));
+				gamma_mc_pw_lr += (S_T_2 / (S0 * S0)) * ((Z2 / (sigma * sqrt((T - t))) - 1));
 
-				rho_mc_pw += K * T;
-				rho_mc_lr += (S_T_2 - K) * ((Z2 * sqrt(T) / sigma) - T);
+				rho_mc_pw += K * (T - t);
+				rho_mc_lr += (S_T_2 - K) * ((Z2 * sqrt((T - t)) / sigma) - (T - t));
 
 				sum_square_price += pow((S_T_2 - K), 2);
 				sum_square_delta_pw += pow((S_T_2 / S0), 2);
-				sum_square_vega_pw += pow(((Z2 * sqrt(T) - sigma * T) * S_T_2), 2);
-				sum_square_rho_pw += pow(S_T_2 * T, 2);
+				sum_square_vega_pw += pow(((Z2 * sqrt((T - t)) - sigma * (T - t)) * S_T_2), 2);
+				sum_square_rho_pw += pow(S_T_2 * (T - t), 2);
 
-				sum_square_gamma_lr_pw += pow(K * Z2 / (S0 * S0 * sigma * sqrt(T)), 2);
-				sum_square_gamma_lr_lr += pow((S_T_2 - K) * ((pow(Z2, 2) - 1) / (pow(S0, 2) * pow(sigma, 2) * T) - Z2 / (pow(S0, 2) * sigma * sqrt(T))), 2);
-				sum_square_gamma_pw_lr += pow((S_T_2 / (S0 * S0)) * ((Z2 / (sigma * sqrt(T)) - 1)), 2);
+				sum_square_gamma_lr_pw += pow(K * Z2 / (S0 * S0 * sigma * sqrt((T - t))), 2);
+				sum_square_gamma_lr_lr += pow((S_T_2 - K) * ((pow(Z2, 2) - 1) / (pow(S0, 2) * pow(sigma, 2) * (T - t)) - Z2 / (pow(S0, 2) * sigma * sqrt((T - t)))), 2);
+				sum_square_gamma_pw_lr += pow((S_T_2 / (S0 * S0)) * ((Z2 / (sigma * sqrt((T - t))) - 1)), 2);
 
-				sum_square_delta_lr += pow(((S_T_2 - K) * Z2) / (S0 * sigma * sqrt(T)), 2);
-				sum_square_vega_lr += pow((S_T_2 - K) * ((Z2 * Z2 / sigma) - (Z2 * sqrt(T)) - (1 / sigma)), 2);
-				sum_square_rho_lr += pow((S_T_2 - K) * ((Z2 * sqrt(T) / sigma) - T), 2);
+				sum_square_delta_lr += pow(((S_T_2 - K) * Z2) / (S0 * sigma * sqrt((T - t))), 2);
+				sum_square_vega_lr += pow((S_T_2 - K) * ((Z2 * Z2 / sigma) - (Z2 * sqrt((T - t))) - (1 / sigma)), 2);
+				sum_square_rho_lr += pow((S_T_2 - K) * ((Z2 * sqrt((T - t)) / sigma) - (T - t)), 2);
 			}
 		}
 
-		payoff_mc *= exp(-r * T) / M;
-		delta_mc_pw *= exp(-r * T) / M;
-		delta_mc_lr *= exp(-r * T) / M;
-		vega_mc_pw *= exp(-r * T) / M;
-		vega_mc_lr *= exp(-r * T) / M;
-		rho_mc_pw *= exp(-r * T) / M;
-		rho_mc_lr *= exp(-r * T) / M;
-		gamma_mc_lr_lr *= exp(-r * T) / M;
-		gamma_mc_lr_pw *= exp(-r * T) / M;
-		gamma_mc_pw_lr *= exp(-r * T) / M;
-		sum_square_price *= exp(-2 * r * T) / (M * (M - 1));
-		sum_square_delta_pw *= exp(-2 * r * T) / (M * (M - 1));
-		sum_square_vega_pw *= exp(-2 * r * T) / (M * (M - 1));
-		sum_square_rho_pw *= exp(-2 * r * T) / (M * (M - 1));
-		sum_square_delta_lr *= exp(-2 * r * T) / (M * (M - 1));
-		sum_square_vega_lr *= exp(-2 * r * T) / (M * (M - 1));
-		sum_square_rho_lr *= exp(-2 * r * T) / (M * (M - 1));
-		sum_square_gamma_lr_lr *= exp(-2 * r * T) / (M * (M - 1));
-		sum_square_gamma_lr_pw *= exp(-2 * r * T) / (M * (M - 1));
-		sum_square_gamma_pw_lr *= exp(-2 * r * T) / (M * (M - 1));
+		payoff_mc *= exp(-r * (T - t)) / M;
+		delta_mc_pw *= exp(-r * (T - t)) / M;
+		delta_mc_lr *= exp(-r * (T - t)) / M;
+		vega_mc_pw *= exp(-r * (T - t)) / M;
+		vega_mc_lr *= exp(-r * (T - t)) / M;
+		rho_mc_pw *= exp(-r * (T - t)) / M;
+		rho_mc_lr *= exp(-r * (T - t)) / M;
+		gamma_mc_lr_lr *= exp(-r * (T - t)) / M;
+		gamma_mc_lr_pw *= exp(-r * (T - t)) / M;
+		gamma_mc_pw_lr *= exp(-r * (T - t)) / M;
+		sum_square_price *= exp(-2 * r * (T - t)) / (M * (M - 1));
+		sum_square_delta_pw *= exp(-2 * r * (T - t)) / (M * (M - 1));
+		sum_square_vega_pw *= exp(-2 * r * (T - t)) / (M * (M - 1));
+		sum_square_rho_pw *= exp(-2 * r * (T - t)) / (M * (M - 1));
+		sum_square_delta_lr *= exp(-2 * r * (T - t)) / (M * (M - 1));
+		sum_square_vega_lr *= exp(-2 * r * (T - t)) / (M * (M - 1));
+		sum_square_rho_lr *= exp(-2 * r * (T - t)) / (M * (M - 1));
+		sum_square_gamma_lr_lr *= exp(-2 * r * (T - t)) / (M * (M - 1));
+		sum_square_gamma_lr_pw *= exp(-2 * r * (T - t)) / (M * (M - 1));
+		sum_square_gamma_pw_lr *= exp(-2 * r * (T - t)) / (M * (M - 1));
 
-		auto end = chrono::high_resolution_clock::now();
-		time_taken = chrono::duration_cast<chrono::microseconds>(end - start).count();
+		time_taken = run_time_sec();
 	}
 
 	double price_BS() {
-		return S0 * normalCDF(d1) - K * exp(-r * T) * normalCDF(d2);
+		return S0 * normalCDF(d1) - K * exp(-r * (T - t)) * normalCDF(d2);
 	}
 
 	double delta_bs() {
@@ -315,15 +314,15 @@ public:
 	}
 
 	double gamma_bs() {
-		return (1 / (sigma * S0 * sqrt(T))) * normalPDF(d1);
+		return (1 / (sigma * S0 * sqrt((T - t)))) * normalPDF(d1);
 	}
 
 	double vega_bs() {
-		return S0 * sqrt(T) * normalPDF(d1);
+		return S0 * sqrt((T - t)) * normalPDF(d1);
 	}
 
 	double rho_bs() {
-		return K * T * exp(-r * T) * normalCDF(d2);
+		return K * (T - t) * exp(-r * (T - t)) * normalCDF(d2);
 	}
 
 	double price_mc() {
@@ -414,23 +413,131 @@ public:
 		return time_taken;
 	}
 
-	ostream& Statistics(ostream& os) {
-
+	ostream& Price(ostream& os) {
 		os << "Number of Simulations: " << m << endl;
+		os << "Computation Time: " << time_taken << endl;
+		os << "" << endl;
+		os << "Statistics of Call Option: Monte Carlo - Price:" << endl;
+		os << "Estimate of Call Option Price: " << price_mc() << endl;
+		os << "Actual Call Option Price " << price_BS() << endl;
+		os << "Bias of estimator: " << bias() << endl;
+		os << "Variance of estimator: " << variance_price() << endl;
+		os << "Mean Square Error: " << variance_price() + pow(bias(), 2) << endl;
+		os << "99.7% Confidence Interval [" << price_mc() - 3 * sqrt(variance_price()) << ", " << price_mc() + 3 * sqrt(variance_price()) << "]" << endl;
+		os << "" << endl;
+		return os;
+	}
 
-		if (time_taken > 1e9) {
-			os << "Computation Time: " << time_taken / 1e9 << "seconds" << endl;
-		}
-		else if (time_taken > 1e6) {
-			os << "Computation Time: " << time_taken / 1e6 << " milliseconds" << endl;
-		}
-		else if (time_taken > 1e3) {
-			os << "Computation Time: " << time_taken / 1e3 << " microseconds" << endl;
-		}
-		else {
-			os << "Computation Time: " << time_taken << " nanoseconds" << endl;
-		}
+	ostream& Delta(ostream& os) {
+		os << "Number of Simulations: " << m << endl;
+		os << "Computation Time: " << time_taken << endl;
+		os << "" << endl;
+		os << "Statistics of Call Option: Monte Carlo - Delta(PW):" << endl;
+		os << "Estimate of Call Option Delta: " << delta_mc_pw << endl;
+		os << "Actual Call Option Delta " << delta_bs() << endl;
+		os << "Bias of estimator: " << delta_bs() - delta_mc_pw << endl;
+		os << "Variance of estimator: " << variance_delta_pw() << endl;
+		os << "Mean Square Error: " << variance_price() + pow((delta_bs() - delta_mc_pw), 2) << endl;
+		os << "99.7% Confidence Interval [" << delta_mc_pw - 3 * sqrt(variance_delta_pw()) << ", " << delta_mc_pw + 3 * sqrt(variance_delta_pw()) << "]" << endl;
+		os << "" << endl;
 
+		os << "Statistics of Call Option: Monte Carlo - Delta(LR):" << endl;
+		os << "Estimate of Call Option Delta: " << delta_mc_lr << endl;
+		os << "Actual Call Option Delta " << delta_bs() << endl;
+		os << "Bias of estimator: " << delta_bs() - delta_mc_lr << endl;
+		os << "Variance of estimator: " << variance_delta_lr() << endl;
+		os << "Mean Square Error: " << variance_price() + pow((delta_bs() - delta_mc_lr), 2) << endl;
+		os << "99.7% Confidence Interval [" << delta_mc_lr - 3 * sqrt(variance_delta_lr()) << ", " << delta_mc_lr + 3 * sqrt(variance_delta_lr()) << "]" << endl;
+		os << "" << endl;
+		return os;
+	}
+
+	ostream& Vega(ostream& os) {
+		os << "Number of Simulations: " << m << endl;
+		os << "Computation Time: " << time_taken << endl;
+		os << "" << endl;
+		os << "Statistics of Call Option: Monte Carlo - Vega(PW):" << endl;
+		os << "Estimate of Call Option Vega: " << vega_mc_pw << endl;
+		os << "Actual Call Option Vega " << vega_bs() << endl;
+		os << "Bias of estimator: " << vega_bs() - vega_mc_pw << endl;
+		os << "Variance of estimator: " << variance_vega_pw() << endl;
+		os << "Mean Square Error: " << variance_vega_pw() + pow((vega_bs() - vega_mc_pw), 2) << endl;
+		os << "99.7% Confidence Interval [" << vega_mc_pw - 3 * sqrt(variance_vega_pw()) << ", " << vega_mc_pw + 3 * sqrt(variance_vega_pw()) << "]" << endl;
+		os << "" << endl;
+
+		os << "Statistics of Call Option: Monte Carlo - Vega(LR):" << endl;
+		os << "Estimate of Call Option Vega: " << vega_mc_lr << endl;
+		os << "Actual Call Option Vega " << vega_bs() << endl;
+		os << "Bias of estimator: " << vega_bs() - vega_mc_lr << endl;
+		os << "Variance of estimator: " << variance_vega_lr() << endl;
+		os << "Mean Square Error: " << variance_vega_lr() + pow((vega_bs() - vega_mc_lr), 2) << endl;
+		os << "99.7% Confidence Interval [" << vega_mc_lr - 3 * sqrt(variance_vega_lr()) << ", " << vega_mc_lr + 3 * sqrt(variance_vega_lr()) << "]" << endl;
+		os << "" << endl;
+		return os;
+	}
+
+	ostream& Rho(ostream& os) {
+		os << "Number of Simulations: " << m << endl;
+		os << "Computation Time: " << time_taken << endl;
+		os << "" << endl;
+		os << "Statistics of Call Option: Monte Carlo - Rho(PW):" << endl;
+		os << "Estimate of Call Option Rho: " << get_rho_mc_pw() << endl;
+		os << "Actual Call Option Rho " << rho_bs() << endl;
+		os << "Bias of estimator: " << rho_bs() - get_rho_mc_pw() << endl;
+		os << "Variance of estimator: " << variance_rho_pw() << endl;
+		os << "Mean Square Error: " << variance_rho_pw() + pow((rho_bs() - get_rho_mc_pw()), 2) << endl;
+		os << "99.7% Confidence Interval [" << get_rho_mc_pw() - 3 * sqrt(variance_rho_pw()) << ", " << get_rho_mc_pw() + 3 * sqrt(variance_rho_pw()) << "]" << endl;
+		os << "" << endl;
+
+		os << "Statistics of Call Option: Monte Carlo - Rho(LR):" << endl;
+		os << "Estimate of Call Option Rho: " << get_rho_mc_lr() << endl;
+		os << "Actual Call Option Rho " << rho_bs() << endl;
+		os << "Bias of estimator: " << rho_bs() - get_rho_mc_lr() << endl;
+		os << "Variance of estimator: " << variance_rho_lr() << endl;
+		os << "Mean Square Error: " << variance_rho_lr() + pow((rho_bs() - get_rho_mc_lr()), 2) << endl;
+		os << "99.7% Confidence Interval [" << get_rho_mc_lr() - 3 * sqrt(variance_rho_lr()) << ", " << get_rho_mc_lr() + 3 * sqrt(variance_rho_lr()) << "]" << endl;
+		os << "" << endl;
+		return os;
+	}
+
+	ostream& Gamma(ostream& os) {
+		os << "Number of Simulations: " << m << endl;
+		os << "Computation Time: " << time_taken << endl;
+		os << "" << endl;
+		os << "Statistics of Call Option: Monte Carlo - Gamma(LR-LR):" << endl;
+		os << "Estimate of Call Option Gamma: " << gamma_mc_lr_lr << endl;
+		os << "Actual Call Option Gamma " << gamma_bs() << endl;
+		os << "Bias of estimator: " << gamma_bs() - gamma_mc_lr_lr << endl;
+		os << "Variance of estimator: " << variance_gamma_lr_lr() << endl;
+		os << "Mean Square Error: " << variance_gamma_lr_lr() + pow((gamma_bs() - gamma_mc_lr_lr), 2) << endl;
+		os << "99.7% Confidence Interval [" << gamma_mc_lr_lr - 3 * sqrt(variance_gamma_lr_lr()) << ", " << gamma_mc_lr_lr + 3 * sqrt(variance_gamma_lr_lr()) << "]" << endl;
+		os << "" << endl;
+
+		os << "Statistics of Call Option: Monte Carlo - Gamma(LR-PW):" << endl;
+		os << "Estimate of Call Option Gamma: " << gamma_mc_lr_pw << endl;
+		os << "Actual Call Option Gamma " << gamma_bs() << endl;
+		os << "Bias of estimator: " << gamma_bs() - gamma_mc_lr_pw << endl;
+		os << "Variance of estimator: " << variance_gamma_lr_pw() << endl;
+		os << "Mean Square Error: " << variance_gamma_lr_pw() + pow((gamma_bs() - gamma_mc_lr_pw), 2) << endl;
+		os << "99.7% Confidence Interval [" << gamma_mc_lr_pw - 3 * sqrt(variance_gamma_lr_pw()) << ", " << gamma_mc_lr_pw + 3 * sqrt(variance_gamma_lr_pw()) << "]" << endl;
+		os << "" << endl;
+
+		os << "Statistics of Call Option: Monte Carlo - Gamma(PW-LR):" << endl;
+		os << "Estimate of Call Option Gamma: " << gamma_mc_pw_lr << endl;
+		os << "Actual Call Option Gamma " << gamma_bs() << endl;
+		os << "Bias of estimator: " << gamma_bs() - gamma_mc_pw_lr << endl;
+		os << "Variance of estimator: " << variance_gamma_pw_lr() << endl;
+		os << "Mean Square Error: " << variance_gamma_pw_lr() + pow((gamma_bs() - gamma_mc_pw_lr), 2) << endl;
+		os << "99.7% Confidence Interval [" << gamma_mc_pw_lr - 3 * sqrt(variance_gamma_pw_lr()) << ", " << gamma_mc_pw_lr + 3 * sqrt(variance_gamma_pw_lr()) << "]" << endl;
+		os << "" << endl;
+
+		return os;
+	}
+
+	ostream& Statistics(ostream& os) {
+		os << "Number of Simulations: " << m << endl;
+		os << "Computation Time: " << time_taken << endl;
+		os << "" << endl;
 
 		os << "Statistics of Call Option: Monte Carlo - Price:" << endl;
 		os << "Estimate of Call Option Price: " << price_mc() << endl;
