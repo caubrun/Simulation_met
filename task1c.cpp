@@ -1262,7 +1262,8 @@ int main2() {
 			double xp = lambda;
 			ofstream myfile1;
 			myfile1.open("Poisson_Tail_distribution.csv");
-			myfile1 << "n;Pber(Sn>x);Cramer;Gamma*;Central_limit;1-Normal.\n";
+			myfile1 << "n;x;Pber(Sn>x);Cramer;-Gamma*;x;Central_limit;1-NormalCDF.\n";
+			
 			for (unsigned int i = 0; i <= 40; i++) {
 				xp += 0.024;
 				x_poisson_cramer.push_back(xp);
