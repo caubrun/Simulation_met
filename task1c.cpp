@@ -607,9 +607,9 @@ double Hull_White(unsigned int n, unsigned int k) {
 		}
 
 		for (unsigned int l = 0; l < Vn.size(); l++) {
-			cout <<"Ui = "<<Ui <<"  Value to add = "<< pow(-1, l)*(Vn[l] * Un[Un.size() - l - 1]) << endl;
+			//cout <<"Ui = "<<Ui <<"  Value to add = "<< pow(-1, l)*(Vn[l] * Un[Un.size() - l - 1]) << endl;
 			Ui += pow(-1, l) * (Vn[l] * Un[Un.size() - l - 1]);
-			cout << "Ui after = " << Ui << endl;
+			//cout << "Ui after = " << Ui << endl;
 			
 		}
 		Ui = Ui / (Un.size());
@@ -837,6 +837,7 @@ public:
 				}
 			}
 		}
+		return 0;
 	}
 	double CLT(double x) {
 		/*This function takes 3 doubles x, N and lambda and 1 integer n as arguments and returns the following probability P(>)*/
@@ -969,6 +970,7 @@ int main0() {
 
 
 	}
+	return 0;
 }
 
 
@@ -1013,8 +1015,8 @@ int main1()
 			//Print
 			probabilities.print();
 			// Write
-			//auto name = to_string(sims);
-			//probabilities.write(name + "simulations");
+			auto name = to_string(sims);
+			probabilities.write("Distribution of S_n with "+name + "MC simulations");
 			cout << "\nSimulation/ calculations complete." << endl;
 		}
 		else if (choice_m1 == 99) {
