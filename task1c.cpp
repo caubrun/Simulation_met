@@ -1245,7 +1245,7 @@ int main2() {
 					double x_clt_double = x_clt[j];
 					//cout << x_bc << endl;
 					//bernoulli B(n, N, p);
-					if (j % 10 == 0) {
+					if ((j+1) % 10 == 0) {
 						cout << "\n";
 						cout << "-------------------------------------------------------------------------------------------------------------" << endl;
 						cout << "Iteration:" << i << endl;
@@ -1300,7 +1300,7 @@ int main2() {
 					double x_pc = x_poisson_cramer[j];
 					double x_clt_double = x_clt[j];
 					//poisson P(n, N, lambda);
-					if (j % 10 == 0) {
+					if ((j+1) % 10 == 0) {
 						cout << "\n";
 						cout << "-------------------------------------------------------------------------------------------------------------" << endl;
 						cout << "Iteration:" << i << endl;
