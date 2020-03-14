@@ -1227,6 +1227,23 @@ int main2() {
 			cout << "Probability (between 0 and 1): ";
 			double p;
 			cin >> p;
+			cout << "\nBy default, this program will simulate Sn using 'n' = 200 to 1,800 (stepsize 200)\n";
+			cout << "Do you want to change the stepsize to increase the maximum 'n'?\n";
+			cout << "\n\n" << endl;
+			cout << "//////////////////////////////////////////////////////////////" << endl;
+			cout << "// Choosing a large stepsize will increase program run time //" << endl;
+			cout << "//////////////////////////////////////////////////////////////\n\n\n\n";
+			cout << "Choice (Y/N): ";
+			string str_ssize_resp;
+			int u_stepsize = 200;
+			cin >> str_ssize_resp;
+
+			if (str_ssize_resp == "Y") {
+				cout << "\nPlease enter stepsize for 'n': ";
+				cin >> u_stepsize;
+			}
+
+			cout << "\nValues of 'n' chosen as: " << u_stepsize << " to " << 9*u_stepsize << endl;
 			cout << "\nStarting simulations/ calculations..." << endl;
 			double xb = p;
 			ofstream myfile0;
@@ -1238,7 +1255,7 @@ int main2() {
 				x_bernoulli_cramer.push_back(xb);
 			}
 			for (int i = 1; i < 10; i++) {
-				n = i * 200;
+				n = i * u_stepsize;
 				bernoulli B(n, N, p);
 				for (unsigned int j = 0; j < x_bernoulli_cramer.size(); j++) {
 					double x_bc = x_bernoulli_cramer[j];
