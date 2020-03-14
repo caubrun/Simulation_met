@@ -1227,18 +1227,18 @@ int main2() {
 			cout << "Probability (between 0 and 1): ";
 			double p;
 			cin >> p;
-			cout << "\nBy default, this program will simulate Sn using 'n' = 200 to 1,800 (stepsize 200)\n";
+			cout << "\nBy default, this program will simulate Sn using 'n' = 200 to 1,800 (9 steps, stepsize 200)\n";
 			cout << "Do you want to change the stepsize to increase the maximum 'n'?\n";
-			cout << "\n\n" << endl;
+			cout << "\n" << endl;
 			cout << "//////////////////////////////////////////////////////////////" << endl;
 			cout << "// Choosing a large stepsize will increase program run time //" << endl;
-			cout << "//////////////////////////////////////////////////////////////\n\n\n\n";
+			cout << "//////////////////////////////////////////////////////////////\n\n";
 			cout << "Choice (Y/N): ";
 			string str_ssize_resp;
 			int u_stepsize = 200;
 			cin >> str_ssize_resp;
 
-			if (str_ssize_resp == "Y") {
+			if (str_ssize_resp == "Y" || str_ssize_resp == "y") {
 				cout << "\nPlease enter stepsize for 'n': ";
 				cin >> u_stepsize;
 			}
@@ -1300,6 +1300,23 @@ int main2() {
 			cout << "Lambda: ";
 			double lambda;
 			cin >> lambda;
+			cout << "\nBy default, this program will simulate Sn using 'n' = 10 to 90 (9 steps, stepsize 10)\n";
+			cout << "Do you want to change the stepsize to increase the maximum 'n'?\n";
+			cout << "\n" << endl;
+			cout << "//////////////////////////////////////////////////////////////" << endl;
+			cout << "// Choosing a large stepsize will increase program run time //" << endl;
+			cout << "//////////////////////////////////////////////////////////////\n\n";
+			cout << "Choice (Y/N): ";
+			string str_ssize_resp;
+			int u_stepsize = 10;
+			cin >> str_ssize_resp;
+
+			if (str_ssize_resp == "Y" || str_ssize_resp == "y") {
+				cout << "\nPlease enter stepsize for 'n': ";
+				cin >> u_stepsize;
+			}
+
+			cout << "\nValues of 'n' chosen as: " << u_stepsize << " to " << 9 * u_stepsize << endl;
 			cout << "\nStarting simulations..." << endl;
 			double xp = lambda;
 			ofstream myfile1;
@@ -1311,7 +1328,7 @@ int main2() {
 				x_poisson_cramer.push_back(xp);
 			}
 			for (int i = 1; i < 10; i++) {
-				n = i * 10;
+				n = i * u_stepsize;
 				poisson P(n, N, lambda);
 				for (unsigned int j = 0; j < x_poisson_cramer.size(); j++) {
 					double x_pc = x_poisson_cramer[j];
