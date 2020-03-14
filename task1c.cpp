@@ -1023,37 +1023,32 @@ int main0() {
 	int n;
 	int choice_m0 = -1;
 	while (choice_m0 != 99) {
-		cout << "\n\n--------------------------------------------Global task----------------------------------------------" << endl;
-		cout << "Welcome to the Global Task of the Coursework section. \nHere we compute the price of a call option and its greeks using:";
-		cout << "\n----------- (1) Monte-Carlo, (2) Black - Scholes formula ----------\n" << endl;
-		cout << "\nSeveral statistics are provided like the mean, the variance, the execution time...\n" << endl;
+		cout << "\n\n------------------------------------------------GLOBAL TASK--------------------------------------------------" << endl;
+		cout << "Welcome to the Global Task of the Coursework section. \nHere we compute the price of a call option and its Greeks using:";
+		cout << "\n\n----------------------------- (1) Monte-Carlo and the (2) Black-Scholes formula -----------------------------" << endl;
+		cout << "\nOptions of which statistics to output will be provided after the simulations/ calculations complete\n" << endl;
+		cout << "(Results will be output to a txt. **NOTE**: Previous txt will be overwritten)" << endl;
 		cout << "(*)  Continue (any number, excl. 99); \n(99) Return to previous menu\n";
 		cout << "Choice: ";
 		cin >> choice_m0;
 		if (choice_m0 != 99) {
-			cout << "\nPlease choose a value for the initial price S0 of the call option" << endl;
-			cout << "Choice for 'S' (double, 100 for example): ";
+			cout << "\n-------------------- Please choose values for the parameters of the European call option --------------------" << endl;
+			cout << "\n'S0'    | Initial price of the stock (double: e.g. 100): ";
 			cin >> S0;
-			cout << "\nPlease choose a value for the strike K of the call option" << endl;
-			cout << "Choice for 'K' (double, 110 for example):";
+			cout << "\n'K'     | Strike of the call option (double: e.g. 110): ";
 			cin >> K;
-			cout << "\nPlease choose a value for the interest rate rho of the call option" << endl;
-			cout << "Choice for 'rho'(double 0.05 for example): ";
+			cout << "\n'r'     | Risk free interest rate (double: e.g. 0.05): ";
 			cin >> R;
-			cout << "\nPlease choose a value for the initiql time t0 of the call option" << endl;
-			cout << "Choice for 't' in number of year (double, 0.5 for example):";
+			cout << "\n't0'    | Initial time of the call option as fraction of a year (double: e.g 0.5): ";
 			cin >> t;
-			cout << "\nPlease choose a value for the maturity T of the call option" << endl;
-			cout << "Choice for 'T' in number of year (double, 0.5 for example):";
+			cout << "\n'T'     | Maturity of the call option as fraction of a year (double: e.g 1.5): ";
 			cin >> T;
-			cout << "\nPlease choose a value for the volatility sigma of the call option" << endl;
-			cout << "Choice for 'sigma' (double, 0.2 for example): ";
+			cout << "\n'Sigma' | Volatility of the call option (double: e.g 0.2): ";
 			cin >> sigma;
-			cout << "\nPlease choose a value for the number of simulations" << endl;
-			cout << "Choice for number of simulations (integer, 10000 for example) : ";
+			cout << "\n'n'     | number of simulations (integer: e.g. 10000): ";
 			cin >> M;
 			cout << "\nPlease choose a method for generating Normal Random Variable :\n(1)  Marsaglia Polar; \n(2)  Box-Muller;" << endl;
-			cout << "Choice for method of Normal Random Generation : ";
+			cout << "Choice for method of Normal Random Generation: ";
 			cin >> n;
 			cout << "\nStarting simulation/ calculations..." << endl;
 
@@ -1066,16 +1061,24 @@ int main0() {
 			s.MonteCarlo(M, 1);
 			int choice_stat = -1;
 			s.Statistics(ofile);
+
+			cout << "\n+-----------------------------------------------------------------------------------------------------------+";
+			cout << "\n *********************************** SIMULATIONS/ CALCULATIONS COMPLETE ************************************ ";
+			cout << "\n                            Please find output in the file: Call_option_stat.txt";
+			cout << "\n *********************************************************************************************************** ";
+			cout << "\n+-----------------------------------------------------------------------------------------------------------+\n\n";
+
+
 			while (choice_stat != 99) {
-				cout << "\nPlease choose what statistics you want to see :" << endl;
+				cout << "\n---------------------------- Please choose the statistics you would like to see -----------------------------\n" << endl;
 				cout << "(0) All" << endl;
 				cout << "(1) Price" << endl;
 				cout << "(2) Delta" << endl;
 				cout << "(3) Gamma" << endl;
 				cout << "(4) Vega" << endl;
 				cout << "(5) Rho" << endl;
-				cout << "(99) Exit" << endl;
-				cout << "Choice :" << endl;
+				cout << "(99) Reset Global Task" << endl;
+				cout << "Choice: ";
 				cin >> choice_stat;
 				if (choice_stat == 0) {
 					s.Statistics(cout);
@@ -1095,6 +1098,18 @@ int main0() {
 				else if (choice_stat == 5) {
 					s.Rho(cout);
 				}
+				else if (choice_stat == 99) {
+					cout << "\n\n" << endl;
+					cout << "///////////////////////////////////////" << endl;
+					cout << "// ......Resetting Global Task...... //" << endl;
+					cout << "///////////////////////////////////////\n\n";
+				}
+				else {
+					cout << "\n\n" << endl;
+					cout << "///////////////////////////////////////" << endl;
+					cout << "// Invalid choice, please try again. //" << endl;
+					cout << "///////////////////////////////////////\n\n\n\n";
+				}
 			}
 		}
 
@@ -1107,8 +1122,6 @@ int main0() {
 			cout << "// Invalid choice, please try again. //" << endl;
 			cout << "///////////////////////////////////////\n\n\n\n";
 		}
-
-
 
 	}
 	return 0;
@@ -1127,6 +1140,7 @@ int main1()
 		cout << "\n\n--------------------------------------------DISTRIBUTION OF S_n----------------------------------------------" << endl;
 		cout << "Welcome to the sum of random variables (S_n) distribution section. \nHere we calculate the probability distributions for the sum of random variables using:";
 		cout << "\n----------- (1) Monte-Carlo, (2) ANDERSEN SIDENIUS BASU Algorithm and the (3) HULL WHITE Algorithm ----------\n" << endl;
+		cout << "(Results will be output to a csv. **NOTE**: Previous csv will be overwritten)" << endl;
 		cout << "(*)  Continue (any number, excl. 99); \n(99) Return to previous menu\n";
 		cout << "Choice: ";
 		cin >> choice_m1;
@@ -1158,7 +1172,13 @@ int main1()
 			// Write
 			auto name = to_string(sims);
 			probabilities.write("Distribution of S_n with " + name + "MC simulations");
-			cout << "\nSimulation/ calculations complete." << endl;
+
+			cout << "\n+-----------------------------------------------------------------------------------------------------------+";
+			cout << "\n *********************************** SIMULATIONS/ CALCULATIONS COMPLETE ************************************ ";
+			cout << "\n          Please find output in the file : 'Distribution of S_n with " + name + "MC simulations.csv";
+			cout << "\n *********************************************************************************************************** ";
+			cout << "\n+-----------------------------------------------------------------------------------------------------------+\n\n";
+
 		}
 		else if (choice_m1 == 99) {
 			return 0;
@@ -1202,12 +1222,12 @@ int main2() {
 			cout << "////////////////////////////////" << endl;
 			cout << "\n" << endl;
 			cout << "Please choose the probability p of a Bernoulli distribution." << endl;
-			cout << "10 iterations will be run using 10,000 values greater than or equal to E[x]" << endl;
-			cout << "(Results will be output to a csv. NOTE: Previous csv will be overwritten)" << endl;
+			cout << "10 iterations will be run using 41 values greater than or equal to E[x]" << endl;
+			cout << "(Results will be output to a csv. **NOTE**: Previous csv will be overwritten)" << endl;
 			cout << "Probability (between 0 and 1): ";
 			double p;
 			cin >> p;
-			cout << "\nStarting simulations..." << endl;
+			cout << "\nStarting simulations/ calculations..." << endl;
 			double xb = p;
 			ofstream myfile0;
 			myfile0.open("Bernoulli_Tail_distribution.csv");
@@ -1239,7 +1259,12 @@ int main2() {
 				//P.write(x, myfile1);
 			}
 			myfile0.close();
-			cout << "\nSimulation complete. \nPlease find output in the file: Bernoulli_Tail_distribution.csv\n" << endl;
+
+			cout << "\n+-----------------------------------------------------------------------------------------------------------+";
+			cout << "\n *********************************** SIMULATIONS/ CALCULATIONS COMPLETE ************************************ ";
+			cout << "\n                        Please find output in the file: Bernoulli_Tail_distribution.csv";
+			cout << "\n *********************************************************************************************************** ";
+			cout << "\n+-----------------------------------------------------------------------------------------------------------+\n\n";
 
 		}
 		else if (choice_m2 == 1) {
@@ -1253,8 +1278,8 @@ int main2() {
 			cout << "////////////////////////////////" << endl;
 			cout << "\n" << endl;
 			cout << "Please choose the parameter lambda for the Poisson distribution.\n";
-			cout << "10 iterations will be run using 10,000 values greater than or equal to E[x]" << endl;
-			cout << "(Results will be output to a csv. NOTE: Previous csv will be overwritten)" << endl;
+			cout << "10 iterations will be run using 41 values greater than or equal to E[x]" << endl;
+			cout << "(Results will be output to a csv. **NOTE**: Previous csv will be overwritten)" << endl;
 			cout << "Lambda: ";
 			double lambda;
 			cin >> lambda;
@@ -1289,7 +1314,12 @@ int main2() {
 
 			}
 			myfile1.close();
-			cout << "\nSimulation complete. \nPlease find output in the file: Poisson_Tail_distribution.csv\n" << endl;
+			cout << "\n+-----------------------------------------------------------------------------------------------------------+";
+			cout << "\n *********************************** SIMULATIONS/ CALCULATIONS COMPLETE ************************************ ";
+			cout << "\n                        Please find output in the file: Poisson_Tail_distribution.csv";
+			cout << "\n *********************************************************************************************************** ";
+			cout << "\n+-----------------------------------------------------------------------------------------------------------+\n\n";
+
 		}
 		else if (choice_m2 == 99) {
 			return 0;
@@ -1318,7 +1348,6 @@ int main() {
 		cin >> choice_m;
 		if (choice_m == 0) {
 			main0();
-			cout << "UNDER CONSTRUCTION... SAMI/ HITCHAM PLEASE SEND :P\n";
 		}
 		else if (choice_m == 1) {
 			main1();
